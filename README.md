@@ -16,9 +16,10 @@ Proyecto de la asignatura Metodología de Sistemas II (UTN FRRe).
 
 ## Stack
 
-- **Backend:** Java 17, Spring Boot 3.5, Spring Data JPA (Hibernate), Spring Security, Flyway, springdoc (Swagger/OpenAPI), JUnit 5 + Mockito.
-- **Frontend:** React, TypeScript, Vite, React Router, Redux Toolkit, Material-UI, Axios + React Query.
+- **Backend:** Java 21, Spring Boot 4.1.1, Spring Data JPA (Hibernate), Spring Security, OAuth2 Resource Server, JWT (jjwt 0.13.0), Flyway, springdoc (Swagger/OpenAPI 3.1.1), JUnit 5 + Mockito.
+- **Frontend:** React 19, TypeScript 6.0, Vite 8, React Router 7, Redux Toolkit, Material-UI 9, Axios + React Query.
 - **Base de datos:** PostgreSQL 15. Las migraciones viven en `Backend/src/main/resources/db/migration` y las aplica Flyway al iniciar el backend.
+- **Contenedorización:** Docker + Docker Compose (PostgreSQL + pgAdmin).
 
 ## Puesta en marcha
 
@@ -61,9 +62,26 @@ Convención de commits: `feat(RF-MOD-ALU-002): implementar GET /api/v1/alumnos`.
 
 ## Sprints
 
-| Sprint | Módulo | Período | Hito |
-|---|---|---|---|
-| 1 | Consulta de Alumnos (RF-MOD-ALU-002) | 16/09 - 22/09 | Hito 1 |
-| 2 | Edición de Docentes (RF-MOD-PROF-004) | 23/09 - 06/10 | Módulo Profesores |
-| 3 | Administración de Usuarios y Permisos (RF-MOD-ADM-008) | 07/10 - 20/10 | RBAC completo |
-| Cierre | Pruebas y despliegue | 21/10 - 27/10 | Hito 2 |
+| Sprint | Módulo | Período | Estado | Documento |
+|---|---|---|---|---|
+| 1 | Consulta de Alumnos (RF-MOD-ALU-002) | 21/09 - 22/09 | ✅ Backend completo | [SPRINT_1.md](SPRINT_1.md) |
+| 2 | Edición de Docentes (RF-MOD-PROF-004) | 23/09 - 06/10 | 📋 Próximo | - |
+| 3 | Administración de Usuarios y Permisos (RF-MOD-ADM-008) | 07/10 - 20/10 | 📋 Próximo | - |
+| Cierre | Pruebas y despliegue | 21/10 - 27/10 | 📋 Próximo | - |
+
+## Sprint 1: Estado y Próximas Tareas
+
+### ✅ Completado
+- **Backend API:** 4 endpoints REST de búsqueda de alumnos
+- **Seguridad:** JWT + OAuth2 Resource Server configurado
+- **Base de datos:** Migraciones Flyway (V1 schema, V2 datos de prueba)
+- **Auditoría:** Registro de cada consulta en `log_auditoria`
+- **Documentación:** Swagger/OpenAPI con todos los endpoints
+
+### 📋 Próximo (Frontend + Completar Sprint 1)
+- Pantalla React para búsqueda de alumnos
+- Endpoint `/login` para generación de tokens JWT
+- Tests unitarios (JUnit 5 + Mockito)
+- Validación de RBAC (profesor solo ve sus alumnos)
+
+Ver [SPRINT_1.md](SPRINT_1.md) para detalles completos, endpoints, datos de prueba y cómo testear.

@@ -1,0 +1,21 @@
+package ar.edu.utn.centroeducativo.gestion.domain;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name = "rol")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Rol {
+
+    @Id
+    private Short id;
+
+    private String nombre;
+}
