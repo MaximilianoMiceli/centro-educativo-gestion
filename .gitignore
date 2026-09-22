@@ -1,0 +1,21 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Entorno
+.env
+
+# Backend
+Backend/target/
+
+# Frontend
+Frontend/node_modules/
+Frontend/dist/
+
+# Documentos temporales de Office
+~$*

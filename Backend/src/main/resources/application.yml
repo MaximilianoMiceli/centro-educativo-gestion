@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: gestion
+  datasource:
+    url: ${CENTRO_DB_URL:jdbc:postgresql://localhost:5434/centro_educativo}
+    username: ${CENTRO_DB_USER:centro}
+    password: ${CENTRO_DB_PASSWORD:centro}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    ar.edu.utn.centroeducativo: DEBUG
