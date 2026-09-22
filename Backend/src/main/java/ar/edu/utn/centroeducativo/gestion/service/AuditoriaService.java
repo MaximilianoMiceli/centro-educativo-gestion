@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servicio para registrar auditoría de operaciones.
@@ -17,6 +19,7 @@ public class AuditoriaService {
 
     private final LogAuditoriaRepository logAuditoriaRepository;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void registrar(String accion, String entidad, Long entidadId, String detalle) {
         try {
             Long usuarioId = extraerIdUsuarioActual();

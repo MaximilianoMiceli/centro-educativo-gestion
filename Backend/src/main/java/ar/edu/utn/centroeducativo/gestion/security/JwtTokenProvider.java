@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${app.jwt.secret:este-es-una-clave-secreta-para-desarrollo-solamente}")
+    @Value("${app.jwt.secret:esta-es-una-clave-secreta-para-desarrollo-solamente-cambiar-en-produccion}")
     private String jwtSecret;
 
     @Value("${app.jwt.expiration:3600000}")

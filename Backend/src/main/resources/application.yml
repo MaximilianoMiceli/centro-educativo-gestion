@@ -11,12 +11,6 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080
-          jwk-set-uri: http://localhost:8080/.well-known/jwks.json
 
 management:
   endpoints:
@@ -36,3 +30,4 @@ app:
 logging:
   level:
     ar.edu.utn.centroeducativo: DEBUG
+    org.springframework.security: DEBUG
