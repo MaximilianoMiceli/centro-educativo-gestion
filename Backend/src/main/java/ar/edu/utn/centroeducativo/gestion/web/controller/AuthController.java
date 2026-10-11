@@ -1,40 +1,39 @@
 package ar.edu.utn.centroeducativo.gestion.web.controller;
 
-import ar.edu.utn.centroeducativo.gestion.security.JwtTokenProvider;
+import ar.edu.utn.centroeducativo.gestion.service.AuthService;
+import ar.edu.utn.centroeducativo.gestion.web.dto.LoginRequest;
+import ar.edu.utn.centroeducativo.gestion.web.dto.LoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Controlador de autenticación.
- * Para desarrollo: GET /api/v1/auth/token devuelve un token válido.
- */
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-@Tag(name = "Autenticación", description = "Endpoints de autenticación (desarrollo)")
+@Tag(name = "Autenticación", description = "Inicio de sesión")
 public class AuthController {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
 
-    /**
-     * Devuelve un token JWT válido para desarrollo.
-     * En producción, usar un endpoint /login real.
-     */
-    @GetMapping("/token")
-    @Operation(summary = "Obtener token de prueba",
-            description = "Devuelve un token JWT válido para desarrollo")
-    public ResponseEntity<Map<String, String>> getToken() {
-        String token = jwtTokenProvider.generarToken("1", "admin", "ADMIN");
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-        response.put("message", "Token válido por 1 hora");
-        return ResponseEntity.ok(response);
+    @PostMapping("/login")
+    @Operation(summary = "Iniciar sesión",
+            description = "Valida usuario y contraseña y devuelve un token JWT.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Credenciales válidas"),
+            @ApiResponse(responseCode = "401", description = "Usuario o contraseña incorrectos")
+    })
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request.username(), request.password())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 }

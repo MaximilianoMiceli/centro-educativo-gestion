@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AxiosInstance } from 'axios';
+import { API_URL } from '../config';
 
 export interface AlumnoDTO {
   id: number;
@@ -28,7 +29,7 @@ class AlumnoService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: 'http://localhost:8080/api/v1',
+      baseURL: API_URL,
       timeout: 5000,
     });
   }

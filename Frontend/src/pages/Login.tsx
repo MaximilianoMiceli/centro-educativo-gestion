@@ -11,6 +11,7 @@ import {
   Paper,
 } from '@mui/material';
 import { School as SchoolIcon } from '@mui/icons-material';
+import { API_URL } from '../config';
 
 interface LoginProps {
   onLogin: (token: string) => void;
@@ -28,19 +29,28 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      // Obtener token del backend (válido por 1 hora)
-      const tokenResponse = await fetch('http://localhost:8080/api/v1/auth/token');
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
 
-      if (!tokenResponse.ok) {
-        setError('No se pudo obtener el token del servidor');
+      if (response.status === 401) {
+        setError('Usuario o contraseña incorrectos');
         setLoading(false);
         return;
       }
 
-      const { token } = await tokenResponse.json();
+      if (!response.ok) {
+        setError('El servidor no pudo procesar el inicio de sesión');
+        setLoading(false);
+        return;
+      }
+
+      const { token } = await response.json();
       onLogin(token);
-    } catch (err) {
-      setError('Error al conectar con el servidor. ¿Está corriendo el backend?');
+    } catch {
+      setError('No se pudo conectar con el servidor. ¿Está corriendo el backend?');
       setLoading(false);
     }
   };

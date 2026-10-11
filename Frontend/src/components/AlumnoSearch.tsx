@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -30,7 +30,9 @@ export const AlumnoSearch: React.FC<AlumnoSearchProps> = ({ token }) => {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
 
-  alumnoService.setToken(token);
+  useEffect(() => {
+    alumnoService.setToken(token);
+  }, [token]);
 
   const buscar = async () => {
     if (!searchValue.trim()) {

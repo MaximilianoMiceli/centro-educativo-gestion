@@ -9,7 +9,7 @@ Proyecto de la asignatura Metodología de Sistemas II (UTN FRRe).
 |---|---|
 | `Documentacion/` | Análisis del proyecto: requerimientos, arquitectura, clasificación, casos de uso |
 | `Diseño/` | Diagramas (ERD, casos de uso, capas) y wireframes de la interfaz |
-| `Backend/` | API REST en Java 17 + Spring Boot 3 (Maven) |
+| `Backend/` | API REST en Java 21 + Spring Boot 4 (Maven) |
 | `Frontend/` | Aplicación web en React + TypeScript (Vite) |
 | `Database/` | Documentación y scripts auxiliares de la base de datos |
 | `docker-compose.yml` | PostgreSQL 15 y pgAdmin para desarrollo |
@@ -23,7 +23,7 @@ Proyecto de la asignatura Metodología de Sistemas II (UTN FRRe).
 
 ## Puesta en marcha
 
-Requisitos: JDK 17 o superior, Node.js 20+, Docker Desktop.
+Requisitos: JDK 21, Node.js 20+, Docker Desktop.
 
 1. Levantar la base de datos (con Docker Desktop abierto):
 
@@ -51,9 +51,9 @@ Requisitos: JDK 17 o superior, Node.js 20+, Docker Desktop.
    npm run dev
    ```
 
-   Disponible en http://localhost:5173. Las llamadas a `/api` se redirigen al backend.
+   Disponible en http://localhost:5173. Inicio de sesión con `admin` / `password`.
 
-Las credenciales de la base se pueden sobrescribir con las variables `CENTRO_DB_URL`, `CENTRO_DB_USER` y `CENTRO_DB_PASSWORD`.
+Las credenciales de la base se pueden sobrescribir con las variables `CENTRO_DB_URL`, `CENTRO_DB_USER` y `CENTRO_DB_PASSWORD`. Si el backend no corre en `http://localhost:8080`, el frontend se configura con `VITE_API_URL` (por ejemplo en `Frontend/.env.local`). Los orígenes CORS permitidos se configuran con `CORS_ALLOWED_ORIGINS`.
 
 ## Flujo de trabajo (Git)
 
@@ -64,7 +64,7 @@ Convención de commits: `feat(RF-MOD-ALU-002): implementar GET /api/v1/alumnos`.
 
 | Sprint | Módulo | Período | Estado | Documento |
 |---|---|---|---|---|
-| 1 | Consulta de Alumnos (RF-MOD-ALU-002) | 21/09 - 22/09 | ✅ Backend completo | [SPRINT_1.md](SPRINT_1.md) |
+| 1 | Consulta de Alumnos (RF-MOD-ALU-002) | 21/09 - 22/09 | 🟡 Falta RBAC | - |
 | 2 | Edición de Docentes (RF-MOD-PROF-004) | 23/09 - 06/10 | 📋 Próximo | - |
 | 3 | Administración de Usuarios y Permisos (RF-MOD-ADM-008) | 07/10 - 20/10 | 📋 Próximo | - |
 | Cierre | Pruebas y despliegue | 21/10 - 27/10 | 📋 Próximo | - |
@@ -73,15 +73,14 @@ Convención de commits: `feat(RF-MOD-ALU-002): implementar GET /api/v1/alumnos`.
 
 ### ✅ Completado
 - **Backend API:** 4 endpoints REST de búsqueda de alumnos
-- **Seguridad:** JWT + OAuth2 Resource Server configurado
-- **Base de datos:** Migraciones Flyway (V1 schema, V2 datos de prueba)
+- **Login:** `POST /api/v1/auth/login` valida usuario y contraseña (BCrypt) y devuelve un JWT
+- **Seguridad:** JWT validado con OAuth2 Resource Server (HS512)
+- **Base de datos:** Migraciones Flyway (V1 schema, V2 datos de prueba, V3 corrección de hashes de contraseña)
 - **Auditoría:** Registro de cada consulta en `log_auditoria`
+- **Frontend:** Login y búsqueda de alumnos por ID, legajo, DNI o nombre
+- **Tests:** Autenticación, servicio de alumnos y seguridad de la API (`./mvnw test`)
 - **Documentación:** Swagger/OpenAPI con todos los endpoints
 
-### 📋 Próximo (Frontend + Completar Sprint 1)
-- Pantalla React para búsqueda de alumnos
-- Endpoint `/login` para generación de tokens JWT
-- Tests unitarios (JUnit 5 + Mockito)
-- Validación de RBAC (profesor solo ve sus alumnos)
-
-Ver [SPRINT_1.md](SPRINT_1.md) para detalles completos, endpoints, datos de prueba y cómo testear.
+### 📋 Pendiente
+- Validación de RBAC: el profesor solo debe ver sus alumnos (hoy `buscarPorNombre` no filtra por curso)
+- Búsqueda por nombre: si el texto coincide con más de un alumno, `findOne` lanza error. Debe devolver lista o pedir más precisión.
