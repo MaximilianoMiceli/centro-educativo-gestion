@@ -1,7 +1,9 @@
 package ar.edu.utn.centroeducativo.gestion.web.exception;
 
+import ar.edu.utn.centroeducativo.gestion.exception.EdicionBloqueadaException;
 import ar.edu.utn.centroeducativo.gestion.exception.NoAutorizadoException;
 import ar.edu.utn.centroeducativo.gestion.exception.RecursoNoEncontradoException;
+import ar.edu.utn.centroeducativo.gestion.exception.ValidacionException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,6 +41,28 @@ public class ExceptionHandler {
         body.put("error", "Forbidden");
         body.put("message", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(ValidacionException.class)
+    public ResponseEntity<Object> handleValidacion(ValidacionException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Bad Request");
+        body.put("message", ex.getMessage());
+        body.put("errores", ex.getErrores());
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(EdicionBloqueadaException.class)
+    public ResponseEntity<Object> handleEdicionBloqueada(EdicionBloqueadaException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.LOCKED.value());
+        body.put("error", "Locked");
+        body.put("message", ex.getMessage());
+        body.put("bloqueadaHasta", ex.getBloqueadaHasta());
+        return new ResponseEntity<>(body, HttpStatus.LOCKED);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)

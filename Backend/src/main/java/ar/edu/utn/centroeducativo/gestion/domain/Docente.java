@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
@@ -51,4 +52,8 @@ public class Docente {
             joinColumns = @JoinColumn(name = "docente_id"),
             inverseJoinColumns = @JoinColumn(name = "curso_id"))
     private Set<Curso> cursos = new HashSet<>();
+
+    private short intentosEdicionFallidos;
+
+    private LocalDateTime edicionBloqueadaHasta;
 }

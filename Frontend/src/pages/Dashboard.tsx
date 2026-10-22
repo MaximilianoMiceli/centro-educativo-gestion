@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   AppBar,
@@ -9,16 +9,25 @@ import {
   Card,
   CardContent,
   Avatar,
+  Tab,
+  Tabs,
 } from '@mui/material';
 import { Logout as LogOutIcon, School as SchoolIcon } from '@mui/icons-material';
 import { AlumnoSearch } from '../components/AlumnoSearch';
+import { DocenteEdicion } from '../components/DocenteEdicion';
+import { rolDelToken } from '../utils/token';
 
 interface DashboardProps {
   token: string;
   onLogout: () => void;
 }
 
+type Pestana = 'alumnos' | 'docentes';
+
 export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
+  const [pestana, setPestana] = useState<Pestana>('alumnos');
+  const esAdmin = rolDelToken(token) === 'ADMIN';
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
       {/* AppBar */}
@@ -80,8 +89,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
           </CardContent>
         </Card>
 
-        {/* Componente de Búsqueda */}
-        <AlumnoSearch token={token} />
+        {esAdmin && (
+          <Tabs value={pestana} onChange={(_e, nueva: Pestana) => setPestana(nueva)} centered sx={{ mb: 3 }}>
+            <Tab value="alumnos" label="Alumnos" />
+            <Tab value="docentes" label="Docentes" />
+          </Tabs>
+        )}
+
+        {pestana === 'alumnos' || !esAdmin ? (
+          <AlumnoSearch token={token} />
+        ) : (
+          <DocenteEdicion token={token} />
+        )}
 
         {/* Footer Info */}
         <Box sx={{ marginTop: 4, textAlign: 'center', color: '#999' }}>

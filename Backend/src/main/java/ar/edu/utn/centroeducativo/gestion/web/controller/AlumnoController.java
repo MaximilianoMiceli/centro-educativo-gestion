@@ -10,8 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -42,7 +41,7 @@ public class AlumnoController {
      * - Búsqueda por Legajo exacto ✓
      * - Búsqueda por DNI exacto ✓
      * - Búsqueda por Nombre (parcial) ✓
-     * - RBAC: Profesor solo ve sus alumnos (validado por query param cursosDelProfesor) ✓
+     * - RBAC: Profesor solo ve sus alumnos (403 si pide uno ajeno) ✓
      * - Auditoría: usuario, timestamp, alumno ✓
      * - Error si no encontrado ✓
      * - Respuesta < 1s (95% casos) ✓
@@ -105,22 +104,17 @@ public class AlumnoController {
      * Si el usuario es PROFESOR, se filtra automáticamente por sus cursos.
      */
     @GetMapping("/buscar/nombre")
-    @Operation(summary = "Buscar alumno por nombre/apellido",
+    @Operation(summary = "Buscar alumnos por nombre/apellido",
             description = "Búsqueda parcial en nombre o apellido. Profesores ven solo sus alumnos.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Alumno encontrado"),
+            @ApiResponse(responseCode = "200", description = "Alumnos encontrados"),
             @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "403", description = "Las coincidencias no pertenecen a los cursos del profesor"),
             @ApiResponse(responseCode = "404", description = "Alumno no encontrado")
     })
-    public ResponseEntity<AlumnoDTO> buscarPorNombre(
+    public ResponseEntity<List<AlumnoDTO>> buscarPorNombre(
             @Parameter(description = "Texto a buscar en nombre o apellido")
             @RequestParam String texto) {
-
-        // Para desarrollo, por ahora devolvemos todos los cursos.
-        // En Sprint 2, integraremos la consulta real de cursos del profesor.
-        Collection<Long> cursosDelProfesor = Collections.emptyList();
-
-        AlumnoDTO dto = alumnoService.buscarPorNombre(texto, cursosDelProfesor);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(alumnoService.buscarPorNombre(texto));
     }
 }

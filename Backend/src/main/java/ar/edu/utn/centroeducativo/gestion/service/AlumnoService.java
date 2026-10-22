@@ -1,19 +1,25 @@
 package ar.edu.utn.centroeducativo.gestion.service;
 
 import ar.edu.utn.centroeducativo.gestion.domain.Alumno;
+import ar.edu.utn.centroeducativo.gestion.domain.Usuario;
+import ar.edu.utn.centroeducativo.gestion.exception.NoAutorizadoException;
 import ar.edu.utn.centroeducativo.gestion.exception.RecursoNoEncontradoException;
 import ar.edu.utn.centroeducativo.gestion.repository.AlumnoRepository;
 import ar.edu.utn.centroeducativo.gestion.repository.AlumnoSpecs;
+import ar.edu.utn.centroeducativo.gestion.repository.DocenteRepository;
+import ar.edu.utn.centroeducativo.gestion.repository.UsuarioRepository;
+import ar.edu.utn.centroeducativo.gestion.security.UsuarioActual;
 import ar.edu.utn.centroeducativo.gestion.web.dto.AlumnoDTO;
-import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servicio de lógica de negocio para alumnos.
- * Maneja búsquedas, conversiones a DTO y auditoría.
+ * Maneja búsquedas, control de acceso por rol, conversiones a DTO y auditoría.
  */
 @Service
 @RequiredArgsConstructor
@@ -22,44 +28,40 @@ public class AlumnoService {
 
     private final AlumnoRepository alumnoRepository;
     private final AuditoriaService auditoriaService;
+    private final UsuarioRepository usuarioRepository;
+    private final DocenteRepository docenteRepository;
+    private final UsuarioActual usuarioActual;
 
-    /**
-     * Busca un alumno por ID con su curso y nivel cargados.
-     * Registra la búsqueda en auditoría.
-     */
     public AlumnoDTO obtenerPorId(Long alumnoId) {
         Alumno alumno = alumnoRepository.findWithCursoById(alumnoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Alumno con ID " + alumnoId + " no encontrado"));
 
+        verificarAcceso(alumno);
         auditoriaService.registrar("CONSULTA", "ALUMNO", alumnoId,
                 "Búsqueda por ID: " + alumnoId);
 
         return convertirADTO(alumno);
     }
 
-    /**
-     * Busca alumno por legajo exacto.
-     */
     public AlumnoDTO buscarPorLegajo(String legajo) {
         Alumno alumno = alumnoRepository.findOne(AlumnoSpecs.legajoIgual(legajo))
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Alumno con legajo " + legajo + " no encontrado"));
 
+        verificarAcceso(alumno);
         auditoriaService.registrar("CONSULTA", "ALUMNO", alumno.getId(),
                 "Búsqueda por legajo: " + legajo);
 
         return convertirADTO(alumno);
     }
 
-    /**
-     * Busca alumno por DNI exacto.
-     */
     public AlumnoDTO buscarPorDni(String dni) {
         Alumno alumno = alumnoRepository.findOne(AlumnoSpecs.dniIgual(dni))
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Alumno con DNI " + dni + " no encontrado"));
 
+        verificarAcceso(alumno);
         auditoriaService.registrar("CONSULTA", "ALUMNO", alumno.getId(),
                 "Búsqueda por DNI: " + dni);
 
@@ -67,25 +69,49 @@ public class AlumnoService {
     }
 
     /**
-     * Busca alumnos por nombre o apellido (búsqueda parcial).
-     * Para profesor, filtra solo los alumnos de sus cursos.
-     * Para admin, devuelve todos.
+     * Busca alumnos por nombre o apellido (parcial).
+     * Para profesor, devuelve solo los alumnos de sus cursos; si hay coincidencias
+     * pero ninguna es suya, responde 403.
      */
-    public AlumnoDTO buscarPorNombre(String texto, Collection<Long> cursosDelProfesor) {
-        Specification<Alumno> spec = AlumnoSpecs.nombreContiene(texto);
-
-        if (!cursosDelProfesor.isEmpty()) {
-            spec = spec.and(AlumnoSpecs.cursoEn(cursosDelProfesor));
+    public List<AlumnoDTO> buscarPorNombre(String texto) {
+        List<Alumno> coincidencias = alumnoRepository.findAll(AlumnoSpecs.nombreContiene(texto));
+        if (coincidencias.isEmpty()) {
+            throw new RecursoNoEncontradoException(
+                    "Alumno con nombre/apellido que contiene '" + texto + "' no encontrado");
         }
 
-        Alumno alumno = alumnoRepository.findOne(spec)
-                .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "Alumno con nombre/apellido que contiene '" + texto + "' no encontrado"));
+        Predicate<Alumno> tieneAcceso = criterioDeAcceso();
+        List<Alumno> permitidos = coincidencias.stream().filter(tieneAcceso).toList();
+        if (permitidos.isEmpty()) {
+            throw new NoAutorizadoException("Los alumnos encontrados no pertenecen a tus cursos");
+        }
 
-        auditoriaService.registrar("CONSULTA", "ALUMNO", alumno.getId(),
-                "Búsqueda por nombre: " + texto);
+        permitidos.forEach(alumno -> auditoriaService.registrar("CONSULTA", "ALUMNO", alumno.getId(),
+                "Búsqueda por nombre: " + texto));
 
-        return convertirADTO(alumno);
+        return permitidos.stream().map(this::convertirADTO).toList();
+    }
+
+    private void verificarAcceso(Alumno alumno) {
+        if (!criterioDeAcceso().test(alumno)) {
+            throw new NoAutorizadoException("El alumno no pertenece a tus cursos");
+        }
+    }
+
+    private Predicate<Alumno> criterioDeAcceso() {
+        if (!usuarioActual.esProfesor()) {
+            return alumno -> true;
+        }
+        Set<Long> cursosDelProfesor = cursosDelProfesorActual();
+        return alumno -> cursosDelProfesor.contains(alumno.getCurso().getId());
+    }
+
+    private Set<Long> cursosDelProfesorActual() {
+        return usuarioActual.id()
+                .flatMap(usuarioRepository::findById)
+                .map(Usuario::getDocente)
+                .map(docente -> docenteRepository.findCursoIdsByDocenteId(docente.getId()))
+                .orElse(Set.of());
     }
 
     private AlumnoDTO convertirADTO(Alumno alumno) {

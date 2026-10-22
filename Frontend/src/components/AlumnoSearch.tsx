@@ -26,7 +26,7 @@ type SearchType = 'id' | 'legajo' | 'dni' | 'nombre';
 export const AlumnoSearch: React.FC<AlumnoSearchProps> = ({ token }) => {
   const [searchType, setSearchType] = useState<SearchType>('legajo');
   const [searchValue, setSearchValue] = useState('');
-  const [resultado, setResultado] = useState<AlumnoDTO | null>(null);
+  const [resultados, setResultados] = useState<AlumnoDTO[]>([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
 
@@ -42,27 +42,27 @@ export const AlumnoSearch: React.FC<AlumnoSearchProps> = ({ token }) => {
 
     setCargando(true);
     setError('');
-    setResultado(null);
+    setResultados([]);
 
     try {
-      let data: AlumnoDTO;
+      let data: AlumnoDTO[];
 
       switch (searchType) {
         case 'id':
-          data = await alumnoService.obtenerPorId(parseInt(searchValue));
+          data = [await alumnoService.obtenerPorId(parseInt(searchValue))];
           break;
         case 'legajo':
-          data = await alumnoService.buscarPorLegajo(searchValue);
+          data = [await alumnoService.buscarPorLegajo(searchValue)];
           break;
         case 'dni':
-          data = await alumnoService.buscarPorDni(searchValue);
+          data = [await alumnoService.buscarPorDni(searchValue)];
           break;
         case 'nombre':
           data = await alumnoService.buscarPorNombre(searchValue);
           break;
       }
 
-      setResultado(data);
+      setResultados(data);
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || 'No se encontró el alumno';
       setError(errorMsg);
@@ -81,7 +81,7 @@ export const AlumnoSearch: React.FC<AlumnoSearchProps> = ({ token }) => {
     if (newType !== null) {
       setSearchType(newType);
       setSearchValue('');
-      setResultado(null);
+      setResultados([]);
       setError('');
     }
   };
@@ -188,10 +188,12 @@ export const AlumnoSearch: React.FC<AlumnoSearchProps> = ({ token }) => {
       )}
 
       {/* Resultado */}
-      {resultado && <AlumnoCard alumno={resultado} />}
+      {resultados.map((alumno) => (
+        <AlumnoCard key={alumno.id} alumno={alumno} />
+      ))}
 
       {/* Datos de prueba */}
-      {!resultado && !error && (
+      {resultados.length === 0 && !error && (
         <Card sx={{ marginTop: 3, backgroundColor: '#F5F5F5', boxShadow: 'none' }}>
           <CardContent>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, marginBottom: 1 }}>

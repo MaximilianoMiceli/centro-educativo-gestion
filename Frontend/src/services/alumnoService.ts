@@ -57,8 +57,8 @@ class AlumnoService {
     return response.data;
   }
 
-  async buscarPorNombre(texto: string): Promise<AlumnoDTO> {
-    const response = await this.api.get<AlumnoDTO>('/alumnos/buscar/nombre', {
+  async buscarPorNombre(texto: string): Promise<AlumnoDTO[]> {
+    const response = await this.api.get<AlumnoDTO[]>('/alumnos/buscar/nombre', {
       params: { texto },
     });
     return response.data;
