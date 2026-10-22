@@ -17,6 +17,7 @@ import { AlumnoSearch } from '../components/AlumnoSearch';
 import { DocenteEdicion } from '../components/DocenteEdicion';
 import { UsuarioAlta } from '../components/UsuarioAlta';
 import { PermisosRoles } from '../components/PermisosRoles';
+import { DatosMaestros } from '../components/DatosMaestros';
 import { rolDelToken } from '../utils/token';
 
 interface DashboardProps {
@@ -24,7 +25,7 @@ interface DashboardProps {
   onLogout: () => void;
 }
 
-type Pestana = 'alumnos' | 'docentes' | 'usuarios' | 'permisos';
+type Pestana = 'alumnos' | 'docentes' | 'usuarios' | 'permisos' | 'datos';
 
 export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
   const [pestana, setPestana] = useState<Pestana>('alumnos');
@@ -97,6 +98,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
             <Tab value="docentes" label="Docentes" />
             <Tab value="usuarios" label="Usuarios" />
             <Tab value="permisos" label="Permisos" />
+            <Tab value="datos" label="Datos" />
           </Tabs>
         )}
 
@@ -104,6 +106,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
         {esAdmin && pestana === 'docentes' ? <DocenteEdicion token={token} /> : null}
         {esAdmin && pestana === 'usuarios' ? <UsuarioAlta token={token} /> : null}
         {esAdmin && pestana === 'permisos' ? <PermisosRoles token={token} /> : null}
+        {esAdmin && pestana === 'datos' ? <DatosMaestros token={token} /> : null}
 
         {/* Footer Info */}
         <Box sx={{ marginTop: 4, textAlign: 'center', color: '#999' }}>

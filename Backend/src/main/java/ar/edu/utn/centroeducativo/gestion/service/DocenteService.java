@@ -10,6 +10,7 @@ import ar.edu.utn.centroeducativo.gestion.repository.UsuarioRepository;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteUpdateRequest;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,14 @@ public class DocenteService {
     private final UsuarioRepository usuarioRepository;
     private final AuditoriaService auditoriaService;
     private final ControlEdicionDocente controlEdicion;
+
+    @Transactional(readOnly = true)
+    public List<DocenteDTO> listar() {
+        return docenteRepository.findAll().stream()
+                .sorted(Comparator.comparing(Docente::getApellido).thenComparing(Docente::getNombre))
+                .map(this::toDTO)
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public DocenteDTO buscarPorLegajo(String legajo) {

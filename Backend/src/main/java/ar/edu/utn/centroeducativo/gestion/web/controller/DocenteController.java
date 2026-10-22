@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class DocenteController {
 
     private final DocenteService docenteService;
+
+    @GetMapping
+    @Operation(summary = "Listar docentes")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listado de docentes"),
+            @ApiResponse(responseCode = "403", description = "Requiere DOCENTES_CONSULTAR")
+    })
+    public ResponseEntity<List<DocenteDTO>> listar() {
+        return ResponseEntity.ok(docenteService.listar());
+    }
 
     @GetMapping("/buscar/legajo")
     @Operation(summary = "Buscar docente por legajo")

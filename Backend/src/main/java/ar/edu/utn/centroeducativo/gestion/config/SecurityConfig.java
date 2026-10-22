@@ -91,10 +91,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/alumnos/**").hasAuthority("ALUMNOS_CONSULTAR")
-                .requestMatchers(HttpMethod.GET, "/api/v1/docentes/**").hasAuthority("DOCENTES_CONSULTAR")
+                .requestMatchers(HttpMethod.GET, "/api/v1/docentes", "/api/v1/docentes/**").hasAuthority("DOCENTES_CONSULTAR")
                 .requestMatchers("/api/v1/docentes/**").hasAuthority("DOCENTES_EDITAR")
                 .requestMatchers("/api/v1/usuarios/**").hasAuthority("USUARIOS_ADMINISTRAR")
                 .requestMatchers("/api/v1/permisos/**", "/api/v1/roles/**").hasAuthority("PERMISOS_ADMINISTRAR")
+                .requestMatchers(HttpMethod.POST, "/api/v1/niveles", "/api/v1/cursos", "/api/v1/materias",
+                        "/api/v1/dictados", "/api/v1/horarios").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

@@ -40,6 +40,11 @@ class DocenteService {
     this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
+  async listar(): Promise<DocenteDTO[]> {
+    const response = await this.api.get<DocenteDTO[]>('/docentes');
+    return response.data;
+  }
+
   async buscarPorLegajo(legajo: string): Promise<DocenteDTO> {
     const response = await this.api.get<DocenteDTO>('/docentes/buscar/legajo', { params: { legajo } });
     return response.data;
