@@ -13,11 +13,14 @@ import ar.edu.utn.centroeducativo.gestion.exception.EdicionBloqueadaException;
 import ar.edu.utn.centroeducativo.gestion.exception.ValidacionException;
 import ar.edu.utn.centroeducativo.gestion.security.JwtTokenProvider;
 import ar.edu.utn.centroeducativo.gestion.service.DocenteService;
+import ar.edu.utn.centroeducativo.gestion.service.PermisosService;
 import ar.edu.utn.centroeducativo.gestion.web.controller.DocenteController;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteDTO;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -48,6 +51,17 @@ class DocenteApiTest {
 
     @MockitoBean
     private DocenteService docenteService;
+
+    @MockitoBean
+    private PermisosService permisosService;
+
+    @BeforeEach
+    void permisosPorRol() {
+        when(permisosService.codigosPorRol("ADMIN")).thenReturn(Set.of(
+                "ALUMNOS_CONSULTAR", "DOCENTES_CONSULTAR", "DOCENTES_EDITAR",
+                "USUARIOS_ADMINISTRAR", "PERMISOS_ADMINISTRAR", "REPORTES_GENERAR"));
+        when(permisosService.codigosPorRol("PROFESOR")).thenReturn(Set.of("ALUMNOS_CONSULTAR"));
+    }
 
     @Test
     void sinTokenDevuelve401() throws Exception {

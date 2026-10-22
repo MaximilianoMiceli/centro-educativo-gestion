@@ -15,6 +15,8 @@ import {
 import { Logout as LogOutIcon, School as SchoolIcon } from '@mui/icons-material';
 import { AlumnoSearch } from '../components/AlumnoSearch';
 import { DocenteEdicion } from '../components/DocenteEdicion';
+import { UsuarioAlta } from '../components/UsuarioAlta';
+import { PermisosRoles } from '../components/PermisosRoles';
 import { rolDelToken } from '../utils/token';
 
 interface DashboardProps {
@@ -22,7 +24,7 @@ interface DashboardProps {
   onLogout: () => void;
 }
 
-type Pestana = 'alumnos' | 'docentes';
+type Pestana = 'alumnos' | 'docentes' | 'usuarios' | 'permisos';
 
 export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
   const [pestana, setPestana] = useState<Pestana>('alumnos');
@@ -93,14 +95,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
           <Tabs value={pestana} onChange={(_e, nueva: Pestana) => setPestana(nueva)} centered sx={{ mb: 3 }}>
             <Tab value="alumnos" label="Alumnos" />
             <Tab value="docentes" label="Docentes" />
+            <Tab value="usuarios" label="Usuarios" />
+            <Tab value="permisos" label="Permisos" />
           </Tabs>
         )}
 
-        {pestana === 'alumnos' || !esAdmin ? (
-          <AlumnoSearch token={token} />
-        ) : (
-          <DocenteEdicion token={token} />
-        )}
+        {!esAdmin || pestana === 'alumnos' ? <AlumnoSearch token={token} /> : null}
+        {esAdmin && pestana === 'docentes' ? <DocenteEdicion token={token} /> : null}
+        {esAdmin && pestana === 'usuarios' ? <UsuarioAlta token={token} /> : null}
+        {esAdmin && pestana === 'permisos' ? <PermisosRoles token={token} /> : null}
 
         {/* Footer Info */}
         <Box sx={{ marginTop: 4, textAlign: 'center', color: '#999' }}>

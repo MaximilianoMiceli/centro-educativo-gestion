@@ -11,11 +11,14 @@ import ar.edu.utn.centroeducativo.gestion.config.SecurityConfig;
 import ar.edu.utn.centroeducativo.gestion.security.JwtTokenProvider;
 import ar.edu.utn.centroeducativo.gestion.service.AlumnoService;
 import ar.edu.utn.centroeducativo.gestion.service.AuthService;
+import ar.edu.utn.centroeducativo.gestion.service.PermisosService;
 import ar.edu.utn.centroeducativo.gestion.web.controller.AlumnoController;
 import ar.edu.utn.centroeducativo.gestion.web.controller.AuthController;
 import ar.edu.utn.centroeducativo.gestion.web.dto.AlumnoDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.LoginResponse;
 import java.util.Optional;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -44,6 +47,16 @@ class SeguridadApiTest {
 
     @MockitoBean
     private AlumnoService alumnoService;
+
+    @MockitoBean
+    private PermisosService permisosService;
+
+    @BeforeEach
+    void permisosDeAdmin() {
+        when(permisosService.codigosPorRol("ADMIN")).thenReturn(Set.of(
+                "ALUMNOS_CONSULTAR", "DOCENTES_CONSULTAR", "DOCENTES_EDITAR",
+                "USUARIOS_ADMINISTRAR", "PERMISOS_ADMINISTRAR", "REPORTES_GENERAR"));
+    }
 
     @Test
     void loginConCredencialesValidasDevuelveToken() throws Exception {

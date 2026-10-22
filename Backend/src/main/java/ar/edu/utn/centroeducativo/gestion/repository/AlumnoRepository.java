@@ -10,4 +10,6 @@ public interface AlumnoRepository extends JpaRepository<Alumno, Long>, JpaSpecif
 
     @EntityGraph(attributePaths = {"curso", "curso.nivel"})
     Optional<Alumno> findWithCursoById(Long id);
+
+    Optional<Alumno> findByDni(String dni);
 }

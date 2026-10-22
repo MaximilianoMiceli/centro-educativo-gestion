@@ -1,13 +1,17 @@
 package ar.edu.utn.centroeducativo.gestion.config;
 
+import ar.edu.utn.centroeducativo.gestion.service.PermisosService;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,14 +21,16 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final PermisosService permisosService;
 
     @Value("${app.jwt.secret}")
     private String jwtSecret;
@@ -34,7 +40,7 @@ public class SecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
@@ -48,7 +54,12 @@ public class SecurityConfig {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             String rol = jwt.getClaimAsString("rol");
-            return rol == null ? List.of() : List.of(new SimpleGrantedAuthority("ROLE_" + rol));
+            if (rol == null) {
+                return List.of();
+            }
+            return permisosService.codigosPorRol(rol).stream()
+                    .<GrantedAuthority>map(SimpleGrantedAuthority::new)
+                    .toList();
         });
         return converter;
     }
@@ -79,7 +90,11 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/v1/docentes/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/alumnos/**").hasAuthority("ALUMNOS_CONSULTAR")
+                .requestMatchers(HttpMethod.GET, "/api/v1/docentes/**").hasAuthority("DOCENTES_CONSULTAR")
+                .requestMatchers("/api/v1/docentes/**").hasAuthority("DOCENTES_EDITAR")
+                .requestMatchers("/api/v1/usuarios/**").hasAuthority("USUARIOS_ADMINISTRAR")
+                .requestMatchers("/api/v1/permisos/**", "/api/v1/roles/**").hasAuthority("PERMISOS_ADMINISTRAR")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

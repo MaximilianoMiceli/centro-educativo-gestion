@@ -40,6 +40,23 @@ public class Usuario {
     @JoinColumn(name = "docente_id")
     private Docente docente;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "alumno_id")
+    private Alumno alumno;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "padre_id")
+    private Padre padre;
+
+    @Column(name = "tipo_documento")
+    private String tipoDocumento = "DNI";
+
+    @Column(name = "numero_documento")
+    private String numeroDocumento;
+
+    @Column(name = "debe_cambiar_password")
+    private boolean debeCambiarPassword = true;
+
     private boolean activo = true;
 
     @Column(name = "creado_en", insertable = false, updatable = false)
