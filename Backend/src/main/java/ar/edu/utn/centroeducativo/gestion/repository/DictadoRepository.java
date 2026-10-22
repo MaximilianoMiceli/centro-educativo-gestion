@@ -10,5 +10,7 @@ public interface DictadoRepository extends JpaRepository<Dictado, Long> {
 
     List<Dictado> findByDocente_IdOrderByMateria_NombreAsc(Long docenteId);
 
+    List<Dictado> findByCurso_IdOrderByMateria_NombreAsc(Long cursoId);
+
     List<Dictado> findAllByOrderByCurso_Nivel_IdAscCurso_AnioAscCurso_SeccionAscMateria_NombreAsc();
 }

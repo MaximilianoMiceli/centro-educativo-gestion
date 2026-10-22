@@ -21,6 +21,10 @@ public class JwtTokenProvider {
     private long jwtExpirationMs;
 
     public String generarToken(String usuarioId, String nombreUsuario, String rol) {
+        return generarToken(usuarioId, nombreUsuario, rol, false);
+    }
+
+    public String generarToken(String usuarioId, String nombreUsuario, String rol, boolean debeCambiarPassword) {
         Date ahora = new Date();
         Date expiracion = new Date(ahora.getTime() + jwtExpirationMs);
 
@@ -28,6 +32,7 @@ public class JwtTokenProvider {
                 .setSubject(usuarioId)
                 .claim("username", nombreUsuario)
                 .claim("rol", rol)
+                .claim("debeCambiarPassword", debeCambiarPassword)
                 .setIssuedAt(ahora)
                 .setExpiration(expiracion)
                 .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS512)

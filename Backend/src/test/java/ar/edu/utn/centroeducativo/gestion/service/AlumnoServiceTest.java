@@ -56,7 +56,7 @@ class AlumnoServiceTest {
     @BeforeEach
     void setUp() {
         alumnoService = new AlumnoService(alumnoRepository, auditoriaService,
-                usuarioRepository, docenteRepository, usuarioActual);
+                new AccesoAlumnos(usuarioRepository, docenteRepository, usuarioActual));
     }
 
     @Test

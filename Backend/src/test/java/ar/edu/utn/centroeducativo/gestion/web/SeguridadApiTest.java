@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import ar.edu.utn.centroeducativo.gestion.config.SecurityConfig;
 import ar.edu.utn.centroeducativo.gestion.security.JwtTokenProvider;
+import ar.edu.utn.centroeducativo.gestion.security.UsuarioActual;
 import ar.edu.utn.centroeducativo.gestion.service.AlumnoService;
 import ar.edu.utn.centroeducativo.gestion.service.AuthService;
 import ar.edu.utn.centroeducativo.gestion.service.PermisosService;
@@ -50,6 +51,9 @@ class SeguridadApiTest {
 
     @MockitoBean
     private PermisosService permisosService;
+
+    @MockitoBean
+    private UsuarioActual usuarioActual;
 
     @BeforeEach
     void permisosDeAdmin() {

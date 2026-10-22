@@ -7,6 +7,7 @@ import ar.edu.utn.centroeducativo.gestion.exception.RecursoNoEncontradoException
 import ar.edu.utn.centroeducativo.gestion.exception.ValidacionException;
 import ar.edu.utn.centroeducativo.gestion.repository.DocenteRepository;
 import ar.edu.utn.centroeducativo.gestion.repository.UsuarioRepository;
+import ar.edu.utn.centroeducativo.gestion.web.dto.CrearDocenteRequest;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteUpdateRequest;
 import java.util.ArrayList;
@@ -27,6 +28,45 @@ public class DocenteService {
     private final UsuarioRepository usuarioRepository;
     private final AuditoriaService auditoriaService;
     private final ControlEdicionDocente controlEdicion;
+
+    @Transactional
+    public DocenteDTO crear(CrearDocenteRequest request) {
+        Map<String, String> errores = new LinkedHashMap<>();
+        String legajo = request.legajo() == null ? null : request.legajo().toUpperCase();
+        if (legajo == null || !legajo.matches("[A-Z0-9]{3,20}")) {
+            errores.put("legajo", "El legajo debe tener entre 3 y 20 letras o números");
+        } else if (docenteRepository.findByLegajoIgnoreCase(legajo).isPresent()) {
+            errores.put("legajo", "Ya existe un docente con ese legajo");
+        }
+
+        DocenteUpdateRequest campos = new DocenteUpdateRequest(request.dni(), request.nombre(), request.apellido(),
+                request.especialidad(), request.email(), request.telefono(), request.estado());
+        errores.putAll(DocenteValidador.validar(campos));
+        if (!errores.containsKey("dni") && docenteRepository.existsByDni(campos.dni())) {
+            errores.put("dni", "Ya existe un docente con ese DNI");
+        }
+        if (!errores.containsKey("email") && campos.email() != null && docenteRepository.existsByEmail(campos.email())) {
+            errores.put("email", "Ya existe un docente con ese email");
+        }
+        if (!errores.isEmpty()) {
+            throw new ValidacionException("Hay datos inválidos en el formulario", errores);
+        }
+
+        Docente docente = new Docente();
+        docente.setLegajo(legajo);
+        docente.setDni(campos.dni());
+        docente.setNombre(campos.nombre());
+        docente.setApellido(campos.apellido());
+        docente.setEspecialidad(campos.especialidad());
+        docente.setEmail(campos.email());
+        docente.setTelefono(campos.telefono());
+        docente.setEstado(DocenteValidador.estadoValido(campos.estado()));
+        docenteRepository.save(docente);
+
+        auditoriaService.registrar("ALTA", "DOCENTE", docente.getId(),
+                "Docente creado: " + legajo + " " + campos.apellido() + ", " + campos.nombre());
+        return toDTO(docente);
+    }
 
     @Transactional(readOnly = true)
     public List<DocenteDTO> listar() {

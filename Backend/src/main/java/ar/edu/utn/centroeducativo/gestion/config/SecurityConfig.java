@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -92,14 +93,17 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/alumnos/**").hasAuthority("ALUMNOS_CONSULTAR")
                 .requestMatchers(HttpMethod.GET, "/api/v1/docentes", "/api/v1/docentes/**").hasAuthority("DOCENTES_CONSULTAR")
-                .requestMatchers("/api/v1/docentes/**").hasAuthority("DOCENTES_EDITAR")
+                .requestMatchers("/api/v1/docentes", "/api/v1/docentes/**").hasAuthority("DOCENTES_EDITAR")
                 .requestMatchers("/api/v1/usuarios/**").hasAuthority("USUARIOS_ADMINISTRAR")
                 .requestMatchers("/api/v1/permisos/**", "/api/v1/roles/**").hasAuthority("PERMISOS_ADMINISTRAR")
+                .requestMatchers(HttpMethod.POST, "/api/v1/alumnos", "/api/v1/alumnos/**").hasAuthority("ALUMNOS_ADMINISTRAR")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/alumnos/**").hasAuthority("ALUMNOS_ADMINISTRAR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/niveles", "/api/v1/cursos", "/api/v1/materias",
                         "/api/v1/dictados", "/api/v1/horarios").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+        http.addFilterAfter(new CambioPasswordObligatorioFilter(), BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }

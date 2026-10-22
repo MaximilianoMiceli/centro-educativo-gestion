@@ -19,4 +19,8 @@ public interface DocenteRepository extends JpaRepository<Docente, Long> {
     boolean existsByDniAndIdNot(String dni, Long id);
 
     boolean existsByEmailAndIdNot(String email, Long id);
+
+    boolean existsByDni(String dni);
+
+    boolean existsByEmail(String email);
 }

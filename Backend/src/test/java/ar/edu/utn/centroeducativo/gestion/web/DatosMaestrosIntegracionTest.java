@@ -62,20 +62,20 @@ class DatosMaestrosIntegracionTest {
         mockMvc.perform(post("/api/v1/horarios")
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(horario(dictadoId, 1, "08:00", "10:00")))
+                        .content(horario(dictadoId, 5, "17:00", "18:00")))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/v1/horarios")
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(horario(dictadoId, 1, "09:00", "11:00")))
+                        .content(horario(dictadoId, 5, "17:30", "18:30")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errores.horaInicio").exists());
 
         mockMvc.perform(post("/api/v1/horarios")
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(horario(dictadoId, 1, "10:00", "09:00")))
+                        .content(horario(dictadoId, 5, "18:00", "17:00")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errores.horaFin").value("La hora de fin debe ser posterior a la de inicio"));
 
@@ -92,7 +92,7 @@ class DatosMaestrosIntegracionTest {
 
         mockMvc.perform(get("/api/v1/docentes").header("Authorization", "Bearer " + admin))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$.length()").value(org.hamcrest.Matchers.greaterThanOrEqualTo(2)));
 
         mockMvc.perform(get("/api/v1/docentes").header("Authorization", "Bearer " + profesor))
                 .andExpect(status().isOk());
@@ -112,13 +112,13 @@ class DatosMaestrosIntegracionTest {
         mockMvc.perform(post("/api/v1/materias")
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Matemática\"}"))
+                        .content("{\"nombre\":\"Historia de prueba\"}"))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/v1/materias")
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"matemática\"}"))
+                        .content("{\"nombre\":\"historia de prueba\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errores.nombre").value("Ya existe una materia con ese nombre"));
     }

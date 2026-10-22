@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Servicio para registrar auditoría de operaciones.
- * Captura el usuario actual, la acción, la entidad y detalles.
+ * Registra la auditoría dentro de la transacción de la operación auditada:
+ * si la operación se revierte, el registro también.
  */
 @Service
 @RequiredArgsConstructor
@@ -19,19 +19,14 @@ public class AuditoriaService {
     private final LogAuditoriaRepository logAuditoriaRepository;
     private final UsuarioActual usuarioActual;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.MANDATORY)
     public void registrar(String accion, String entidad, Long entidadId, String detalle) {
-        try {
-            LogAuditoria log = new LogAuditoria();
-            log.setUsuarioId(usuarioActual.id().orElse(null));
-            log.setAccion(accion);
-            log.setEntidad(entidad);
-            log.setEntidadId(entidadId);
-            log.setDetalle(detalle);
-            logAuditoriaRepository.save(log);
-        } catch (Exception e) {
-            // No fallar la operación si la auditoría falla
-            // En producción, logear esta excepción
-        }
+        LogAuditoria log = new LogAuditoria();
+        log.setUsuarioId(usuarioActual.id().orElse(null));
+        log.setAccion(accion);
+        log.setEntidad(entidad);
+        log.setEntidadId(entidadId);
+        log.setDetalle(detalle);
+        logAuditoriaRepository.save(log);
     }
 }

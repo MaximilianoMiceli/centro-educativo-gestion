@@ -3,6 +3,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
+import { CambiarPassword } from './components/CambiarPassword';
+import { debeCambiarPasswordDelToken } from './utils/token';
 
 const theme = createTheme({
   palette: {
@@ -44,8 +46,10 @@ function App() {
       <CssBaseline />
       {!token ? (
         <Login onLogin={handleLogin} />
+      ) : debeCambiarPasswordDelToken(token) ? (
+        <CambiarPassword token={token} onCambiado={handleLogin} onLogout={handleLogout} />
       ) : (
-        <Dashboard token={token} onLogout={handleLogout} />
+        <Dashboard token={token} onLogout={handleLogout} onTokenActualizado={handleLogin} />
       )}
     </ThemeProvider>
   );

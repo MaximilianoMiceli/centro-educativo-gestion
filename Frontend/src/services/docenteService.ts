@@ -16,6 +16,10 @@ export interface DocenteDTO {
   cursos: string[];
 }
 
+export interface DocenteFormulario extends DocenteEdicion {
+  legajo: string;
+}
+
 export interface DocenteEdicion {
   dni: string;
   nombre: string;
@@ -38,6 +42,11 @@ class DocenteService {
 
   setToken(token: string): void {
     this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+
+  async crear(datos: DocenteFormulario): Promise<DocenteDTO> {
+    const response = await this.api.post<DocenteDTO>('/docentes', datos);
+    return response.data;
   }
 
   async listar(): Promise<DocenteDTO[]> {

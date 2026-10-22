@@ -1,6 +1,7 @@
 package ar.edu.utn.centroeducativo.gestion.web.controller;
 
 import ar.edu.utn.centroeducativo.gestion.service.DocenteService;
+import ar.edu.utn.centroeducativo.gestion.web.dto.CrearDocenteRequest;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,6 +31,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class DocenteController {
 
     private final DocenteService docenteService;
+
+    @PostMapping
+    @Operation(summary = "Dar de alta un docente", description = "Requiere DOCENTES_EDITAR.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Docente creado"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos (incluye errores por campo)"),
+            @ApiResponse(responseCode = "403", description = "Requiere DOCENTES_EDITAR")
+    })
+    public ResponseEntity<DocenteDTO> crear(@RequestBody CrearDocenteRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(docenteService.crear(request));
+    }
 
     @GetMapping
     @Operation(summary = "Listar docentes")

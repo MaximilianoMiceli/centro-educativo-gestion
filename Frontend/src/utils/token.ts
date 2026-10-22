@@ -1,9 +1,17 @@
-export function rolDelToken(token: string): string | null {
+function payloadDelToken(token: string): Record<string, unknown> {
   try {
     const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(base64));
-    return typeof payload.rol === 'string' ? payload.rol : null;
+    return JSON.parse(atob(base64));
   } catch {
-    return null;
+    return {};
   }
+}
+
+export function rolDelToken(token: string): string | null {
+  const rol = payloadDelToken(token).rol;
+  return typeof rol === 'string' ? rol : null;
+}
+
+export function debeCambiarPasswordDelToken(token: string): boolean {
+  return payloadDelToken(token).debeCambiarPassword === true;
 }

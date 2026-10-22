@@ -11,25 +11,40 @@ import {
   Avatar,
   Tab,
   Tabs,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Snackbar,
+  Alert,
 } from '@mui/material';
-import { Logout as LogOutIcon, School as SchoolIcon } from '@mui/icons-material';
-import { AlumnoSearch } from '../components/AlumnoSearch';
-import { DocenteEdicion } from '../components/DocenteEdicion';
+import { Logout as LogOutIcon, School as SchoolIcon, VpnKey as VpnKeyIcon } from '@mui/icons-material';
+import { AlumnosPanel } from '../components/AlumnosPanel';
+import { DocentesPanel } from '../components/DocentesPanel';
 import { UsuarioAlta } from '../components/UsuarioAlta';
 import { PermisosRoles } from '../components/PermisosRoles';
 import { DatosMaestros } from '../components/DatosMaestros';
+import { FormularioCambioPassword } from '../components/CambiarPassword';
 import { rolDelToken } from '../utils/token';
 
 interface DashboardProps {
   token: string;
   onLogout: () => void;
+  onTokenActualizado: (nuevoToken: string) => void;
 }
 
 type Pestana = 'alumnos' | 'docentes' | 'usuarios' | 'permisos' | 'datos';
 
-export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenActualizado }) => {
   const [pestana, setPestana] = useState<Pestana>('alumnos');
+  const [cambioAbierto, setCambioAbierto] = useState(false);
+  const [avisoCambio, setAvisoCambio] = useState(false);
   const esAdmin = rolDelToken(token) === 'ADMIN';
+
+  const alCambiarPassword = (nuevoToken: string) => {
+    onTokenActualizado(nuevoToken);
+    setCambioAbierto(false);
+    setAvisoCambio(true);
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
@@ -48,6 +63,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
           </Typography>
           <Button
             color="inherit"
+            startIcon={<VpnKeyIcon />}
+            onClick={() => setCambioAbierto(true)}
+            sx={{ fontWeight: 600, mr: 1, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}
+          >
+            Mi contraseña
+          </Button>
+          <Button
+            color="inherit"
             startIcon={<LogOutIcon />}
             onClick={onLogout}
             sx={{
@@ -61,6 +84,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
           </Button>
         </Toolbar>
       </AppBar>
+
+      <Dialog open={cambioAbierto} onClose={() => setCambioAbierto(false)} fullWidth maxWidth="xs">
+        <DialogTitle>Cambiar mi contraseña</DialogTitle>
+        <DialogContent>
+          <FormularioCambioPassword
+            token={token}
+            onCambiado={alCambiarPassword}
+            onCancelar={() => setCambioAbierto(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Snackbar
+        open={avisoCambio}
+        autoHideDuration={4000}
+        onClose={() => setAvisoCambio(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" variant="filled" onClose={() => setAvisoCambio(false)}>
+          Contraseña actualizada
+        </Alert>
+      </Snackbar>
 
       {/* Contenido Principal */}
       <Container maxWidth="md" sx={{ flex: 1, paddingY: 4 }}>
@@ -102,8 +147,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout }) => {
           </Tabs>
         )}
 
-        {!esAdmin || pestana === 'alumnos' ? <AlumnoSearch token={token} /> : null}
-        {esAdmin && pestana === 'docentes' ? <DocenteEdicion token={token} /> : null}
+        {!esAdmin || pestana === 'alumnos' ? <AlumnosPanel token={token} /> : null}
+        {esAdmin && pestana === 'docentes' ? <DocentesPanel token={token} /> : null}
         {esAdmin && pestana === 'usuarios' ? <UsuarioAlta token={token} /> : null}
         {esAdmin && pestana === 'permisos' ? <PermisosRoles token={token} /> : null}
         {esAdmin && pestana === 'datos' ? <DatosMaestros token={token} /> : null}

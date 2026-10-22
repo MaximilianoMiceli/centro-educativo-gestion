@@ -153,7 +153,7 @@ function CursosSeccion({ onAviso }: { onAviso: (a: Aviso) => void }) {
       </TextField>
       <List dense>
         {cursos.map((c) => (
-          <ListItemText key={c.id} primary={c.descripcion} secondary={c.nivel} sx={{ pl: 2 }} />
+          <ListItemText key={c.id} primary={c.descripcion} sx={{ pl: 2 }} />
         ))}
       </List>
       <Divider sx={{ my: 2 }} />
