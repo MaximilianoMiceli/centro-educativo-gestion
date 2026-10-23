@@ -1,6 +1,9 @@
 package ar.edu.utn.centroeducativo.gestion.web.controller;
 
 import ar.edu.utn.centroeducativo.gestion.service.UsuarioService;
+import ar.edu.utn.centroeducativo.gestion.service.VinculoPadreService;
+import ar.edu.utn.centroeducativo.gestion.web.dto.AlumnoResumenDTO;
+import ar.edu.utn.centroeducativo.gestion.web.dto.VincularHijosRequest;
 import ar.edu.utn.centroeducativo.gestion.web.dto.CrearUsuarioRequest;
 import ar.edu.utn.centroeducativo.gestion.web.dto.RestablecerPasswordRequest;
 import ar.edu.utn.centroeducativo.gestion.web.dto.UsuarioCreadoDTO;
@@ -30,6 +33,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final VinculoPadreService vinculoPadreService;
+
+    @GetMapping("/{id}/hijos")
+    @Operation(summary = "Listar los hijos vinculados a un usuario padre")
+    public ResponseEntity<List<AlumnoResumenDTO>> hijos(@PathVariable Long id) {
+        return ResponseEntity.ok(vinculoPadreService.hijos(id));
+    }
+
+    @PutMapping("/{id}/hijos")
+    @Operation(summary = "Reemplazar los hijos vinculados a un usuario padre")
+    public ResponseEntity<Void> vincularHijos(@PathVariable Long id, @RequestBody VincularHijosRequest request) {
+        vinculoPadreService.vincular(id, request.alumnoIds());
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping
     @Operation(summary = "Listar usuarios")

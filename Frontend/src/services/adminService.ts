@@ -68,6 +68,15 @@ class AdminService {
     return response.data;
   }
 
+  async hijos(usuarioId: number): Promise<{ id: number; legajo: string; alumno: string }[]> {
+    const response = await this.api.get<{ id: number; legajo: string; alumno: string }[]>(`/usuarios/${usuarioId}/hijos`);
+    return response.data;
+  }
+
+  async vincularHijos(usuarioId: number, alumnoIds: number[]): Promise<void> {
+    await this.api.put(`/usuarios/${usuarioId}/hijos`, { alumnoIds });
+  }
+
   async restablecerPassword(id: number, password: string, debeCambiarPassword: boolean): Promise<void> {
     await this.api.put(`/usuarios/${id}/password`, { password, debeCambiarPassword });
   }

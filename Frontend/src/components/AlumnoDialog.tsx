@@ -18,6 +18,7 @@ import {
 import { alumnosAdminService } from '../services/alumnosAdminService';
 import type { AlumnoFicha, AlumnoMateria, DatosAlumno } from '../services/alumnosAdminService';
 import type { CursoDTO } from '../services/datosMaestrosService';
+import { ServiciosAlumno } from './ServiciosAlumno';
 
 interface AlumnoDialogProps {
   open: boolean;
@@ -59,7 +60,7 @@ function aFormulario(alumno: AlumnoFicha): DatosAlumno {
 }
 
 export const AlumnoDialog: React.FC<AlumnoDialogProps> = ({ open, alumno, cursos, editable, onClose, onGuardado }) => {
-  const [pestana, setPestana] = useState<'datos' | 'materias'>('datos');
+  const [pestana, setPestana] = useState<'datos' | 'materias' | 'servicios'>('datos');
   const [form, setForm] = useState<DatosAlumno>(FORMULARIO_VACIO);
   const [materias, setMaterias] = useState<AlumnoMateria[]>([]);
   const [errores, setErrores] = useState<Errores>({});
@@ -132,9 +133,10 @@ export const AlumnoDialog: React.FC<AlumnoDialogProps> = ({ open, alumno, cursos
       </DialogTitle>
 
       {alumno && (
-        <Tabs value={pestana} onChange={(_e, nueva: 'datos' | 'materias') => setPestana(nueva)} sx={{ px: 3 }}>
+        <Tabs value={pestana} onChange={(_e, nueva: 'datos' | 'materias' | 'servicios') => setPestana(nueva)} sx={{ px: 3 }}>
           <Tab value="datos" label="Datos" />
           <Tab value="materias" label="Materias cursadas" />
+          {alumno && <Tab value="servicios" label="Servicios" />}
         </Tabs>
       )}
 
@@ -183,6 +185,8 @@ export const AlumnoDialog: React.FC<AlumnoDialogProps> = ({ open, alumno, cursos
             </TextField>
           </Box>
         )}
+
+        {pestana === 'servicios' && alumno && <ServiciosAlumno alumnoId={alumno.id} editable={editable} />}
 
         {pestana === 'materias' && (
           <List dense>

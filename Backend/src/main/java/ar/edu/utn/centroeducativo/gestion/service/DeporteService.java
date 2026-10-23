@@ -65,6 +65,17 @@ public class DeporteService {
         Deporte deporte = buscar(deporteId);
         Map<String, String> errores = new LinkedHashMap<>();
         Docente responsable = resolverDocente(request.docenteId(), errores);
+        if (responsable != null) {
+            for (GrupoDeporte grupo : grupoRepository.findByDeporte_IdOrderByNivel_IdAscDiaSemanaAscHoraInicioAsc(deporteId)) {
+                List<GrupoDeporte> conflictos = grupoRepository.findConflictosDocenteEnOtrosDeportes(
+                        responsable.getId(), deporteId, grupo.getDiaSemana(), grupo.getHoraInicio(), grupo.getHoraFin());
+                if (!conflictos.isEmpty()) {
+                    errores.put("docenteResponsableId", "El docente ya es responsable de "
+                            + conflictos.get(0).getDeporte().getNombre() + " en ese horario");
+                    break;
+                }
+            }
+        }
         if (!errores.isEmpty()) {
             throw new ValidacionException("No se pudo asignar el responsable", errores);
         }

@@ -139,6 +139,13 @@ public class AlumnoAdministracionService {
     }
 
     @Transactional(readOnly = true)
+    public AlumnoFichaDTO ficha(Long alumnoId) {
+        Alumno alumno = buscar(alumnoId);
+        accesoAlumnos.verificar(alumno);
+        return toDTO(alumno);
+    }
+
+    @Transactional(readOnly = true)
     public List<AlumnoMateriaDTO> materias(Long alumnoId) {
         Alumno alumno = buscar(alumnoId);
         accesoAlumnos.verificar(alumno);

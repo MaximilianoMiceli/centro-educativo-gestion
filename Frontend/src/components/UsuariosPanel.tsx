@@ -25,6 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import { adminService, ROLES, TIPOS_DOCUMENTO } from '../services/adminService';
+import { alumnosAdminService } from '../services/alumnosAdminService';
 import type { CrearUsuarioDatos, RolNombre, UsuarioLista } from '../services/adminService';
 
 interface UsuariosPanelProps {
@@ -56,11 +57,32 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
   const [nuevaRepetir, setNuevaRepetir] = useState('');
   const [nuevaDebeCambiar, setNuevaDebeCambiar] = useState(true);
   const [errorRestablecer, setErrorRestablecer] = useState<string | null>(null);
+  const [hijosDe, setHijosDe] = useState<UsuarioLista | null>(null);
+  const [alumnosTodos, setAlumnosTodos] = useState<{ id: number; legajo: string; alumno: string }[]>([]);
+  const [seleccionHijos, setSeleccionHijos] = useState<number[]>([]);
 
   const cargar = () => adminService.listarUsuarios().then(setUsuarios);
 
+  const abrirHijos = async (usuario: UsuarioLista) => {
+    setHijosDe(usuario);
+    const [hijos, alumnos] = await Promise.all([
+      adminService.hijos(usuario.id),
+      alumnosAdminService.listar(),
+    ]);
+    setSeleccionHijos(hijos.map((h) => h.id));
+    setAlumnosTodos(alumnos.map((a) => ({ id: a.id, legajo: a.legajo, alumno: `${a.apellido}, ${a.nombre}` })));
+  };
+
+  const guardarHijos = async () => {
+    if (!hijosDe) return;
+    await adminService.vincularHijos(hijosDe.id, seleccionHijos);
+    setAviso(`Hijos de ${hijosDe.username} actualizados`);
+    setHijosDe(null);
+  };
+
   useEffect(() => {
     adminService.setToken(token);
+    alumnosAdminService.setToken(token);
     cargar();
   }, [token]);
 
@@ -245,6 +267,9 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
                     : <Chip size="small" color="success" variant="outlined" label="Vigente" />}
                 </TableCell>
                 <TableCell align="right">
+                  {u.rol === 'PADRE' && (
+                    <Button size="small" onClick={() => abrirHijos(u)}>Hijos</Button>
+                  )}
                   <Button size="small" onClick={() => abrirRestablecer(u)}>Restablecer contraseña</Button>
                 </TableCell>
               </TableRow>
@@ -288,6 +313,33 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
           <Button variant="contained" onClick={confirmarRestablecer} disabled={!nuevaPassword || !nuevaRepetir}>
             Restablecer
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={!!hijosDe} onClose={() => setHijosDe(null)} fullWidth maxWidth="xs">
+        <DialogTitle>Hijos de {hijosDe?.username}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            {alumnosTodos.map((a) => (
+              <FormControlLabel
+                key={a.id}
+                control={
+                  <Checkbox
+                    checked={seleccionHijos.includes(a.id)}
+                    onChange={(e) =>
+                      setSeleccionHijos((previo) =>
+                        e.target.checked ? [...previo, a.id] : previo.filter((x) => x !== a.id))
+                    }
+                  />
+                }
+                label={`${a.legajo} · ${a.alumno}`}
+              />
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setHijosDe(null)}>Cancelar</Button>
+          <Button variant="contained" onClick={guardarHijos}>Guardar</Button>
         </DialogActions>
       </Dialog>
 

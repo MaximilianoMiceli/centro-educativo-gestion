@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { Logout as LogOutIcon, School as SchoolIcon, VpnKey as VpnKeyIcon } from '@mui/icons-material';
 import { AlumnosPanel } from '../components/AlumnosPanel';
+import { MiInformacion } from '../components/MiInformacion';
 import { DocentesPanel } from '../components/DocentesPanel';
 import { UsuariosPanel } from '../components/UsuariosPanel';
 import { PermisosRoles } from '../components/PermisosRoles';
@@ -39,6 +40,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
   const [cambioAbierto, setCambioAbierto] = useState(false);
   const [avisoCambio, setAvisoCambio] = useState(false);
   const esAdmin = rolDelToken(token) === 'ADMIN';
+  const esFamilia = ['PADRE', 'ALUMNO'].includes(rolDelToken(token) ?? '');
 
   const alCambiarPassword = (nuevoToken: string) => {
     onTokenActualizado(nuevoToken);
@@ -147,7 +149,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
           </Tabs>
         )}
 
-        {!esAdmin || pestana === 'alumnos' ? <AlumnosPanel token={token} /> : null}
+        {esFamilia ? <MiInformacion token={token} /> : (!esAdmin || pestana === 'alumnos') ? <AlumnosPanel token={token} /> : null}
         {esAdmin && pestana === 'docentes' ? <DocentesPanel token={token} /> : null}
         {esAdmin && pestana === 'usuarios' ? <UsuariosPanel token={token} /> : null}
         {esAdmin && pestana === 'permisos' ? <PermisosRoles token={token} /> : null}

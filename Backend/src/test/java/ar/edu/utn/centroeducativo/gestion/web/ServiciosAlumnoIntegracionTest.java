@@ -96,6 +96,44 @@ class ServiciosAlumnoIntegracionTest {
                 .andExpect(status().isForbidden());
     }
 
+    @Test
+    void responsableNoPuedeTenerDosDeportesEnElMismoHorario() throws Exception {
+        String admin = login("admin", "password");
+
+        MvcResult hockey = mockMvc.perform(post("/api/v1/deportes")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nombre\":\"Hockey responsable\",\"docenteResponsableId\":2}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        long hockeyId = extraerLong(ID, hockey.getResponse().getContentAsString());
+        mockMvc.perform(post("/api/v1/deportes/" + hockeyId + "/grupos")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nivelId\":3,\"diaSemana\":6,\"horaInicio\":\"10:00\",\"horaFin\":\"11:00\"}"))
+                .andExpect(status().isCreated());
+
+        MvcResult remo = mockMvc.perform(post("/api/v1/deportes")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nombre\":\"Remo responsable\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        long remoId = extraerLong(ID, remo.getResponse().getContentAsString());
+        mockMvc.perform(post("/api/v1/deportes/" + remoId + "/grupos")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nivelId\":3,\"diaSemana\":6,\"horaInicio\":\"10:30\",\"horaFin\":\"11:30\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(put("/api/v1/deportes/" + remoId + "/responsable")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"docenteId\":2}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errores.docenteResponsableId").value(containsString("ya es responsable")));
+    }
+
     private long crearDeporteConGrupo(String admin, String nombre, int dia, String inicio, String fin) throws Exception {
         MvcResult deporte = mockMvc.perform(post("/api/v1/deportes")
                         .header("Authorization", "Bearer " + admin)

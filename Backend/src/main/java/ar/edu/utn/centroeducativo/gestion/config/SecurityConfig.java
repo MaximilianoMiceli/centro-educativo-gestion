@@ -95,6 +95,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/docentes", "/api/v1/docentes/**").hasAuthority("DOCENTES_CONSULTAR")
                 .requestMatchers("/api/v1/docentes", "/api/v1/docentes/**").hasAuthority("DOCENTES_EDITAR")
                 .requestMatchers("/api/v1/usuarios/**").hasAuthority("USUARIOS_ADMINISTRAR")
+                .requestMatchers("/api/v1/mi-informacion/**").hasAuthority("MI_INFORMACION_CONSULTAR")
                 .requestMatchers("/api/v1/permisos/**", "/api/v1/roles/**").hasAuthority("PERMISOS_ADMINISTRAR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/alumnos", "/api/v1/alumnos/**").hasAuthority("ALUMNOS_ADMINISTRAR")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/alumnos/**").hasAuthority("ALUMNOS_ADMINISTRAR")
