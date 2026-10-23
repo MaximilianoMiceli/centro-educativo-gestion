@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 class CambioPasswordIntegracionTest {
 
     private static final Pattern TOKEN = Pattern.compile("\"token\":\"([^\"]+)\"");
-    private static final Pattern PASSWORD_TEMPORAL = Pattern.compile("\"passwordTemporal\":\"([^\"]+)\"");
 
     @Autowired
     private MockMvc mockMvc;
@@ -36,10 +35,12 @@ class CambioPasswordIntegracionTest {
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"cambio.test\",\"email\":\"cambio.test@centro.local\","
-                                + "\"tipoDocumento\":\"DNI\",\"numeroDocumento\":\"87654321\",\"rol\":\"PROFESOR\"}"))
+                                + "\"tipoDocumento\":\"DNI\",\"numeroDocumento\":\"87654321\",\"rol\":\"PROFESOR\","
+                                + "\"password\":\"ClaveInicial1\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
-        String temporal = extraer(PASSWORD_TEMPORAL, alta.getResponse().getContentAsString());
+        String temporal = "ClaveInicial1";
+        assertThat(alta.getResponse().getContentAsString()).contains("cambio.test");
 
         MvcResult login = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

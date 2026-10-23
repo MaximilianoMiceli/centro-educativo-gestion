@@ -32,8 +32,6 @@ public class Curso {
     private String seccion;
 
     public String getDescripcion() {
-        String nivelNombre = nivel.getNombre();
-        String nivelLegible = nivelNombre.charAt(0) + nivelNombre.substring(1).toLowerCase();
-        return nivelLegible + " · " + anio + "° " + seccion;
+        return nivel.getNombreLegible() + " · " + anio + "° " + seccion;
     }
 }

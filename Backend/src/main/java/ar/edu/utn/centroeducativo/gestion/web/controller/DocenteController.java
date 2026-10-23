@@ -1,6 +1,8 @@
 package ar.edu.utn.centroeducativo.gestion.web.controller;
 
+import ar.edu.utn.centroeducativo.gestion.service.DocenteAgendaService;
 import ar.edu.utn.centroeducativo.gestion.service.DocenteService;
+import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteAgendaDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.CrearDocenteRequest;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteUpdateRequest;
@@ -31,6 +33,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class DocenteController {
 
     private final DocenteService docenteService;
+    private final DocenteAgendaService docenteAgendaService;
+
+    @GetMapping("/{id}/agenda")
+    @Operation(summary = "Agenda del docente",
+            description = "Cursos a cargo (con nivel), materias de cada curso y sus horarios.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Agenda del docente"),
+            @ApiResponse(responseCode = "404", description = "Docente no encontrado")
+    })
+    public ResponseEntity<DocenteAgendaDTO> agenda(@Parameter(description = "ID del docente") @PathVariable Long id) {
+        return ResponseEntity.ok(docenteAgendaService.agenda(id));
+    }
 
     @PostMapping
     @Operation(summary = "Dar de alta un docente", description = "Requiere DOCENTES_EDITAR.")

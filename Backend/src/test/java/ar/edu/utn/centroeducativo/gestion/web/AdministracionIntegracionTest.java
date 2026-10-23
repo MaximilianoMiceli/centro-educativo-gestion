@@ -26,7 +26,6 @@ import ar.edu.utn.centroeducativo.gestion.service.AuditoriaService;
 class AdministracionIntegracionTest {
 
     private static final Pattern TOKEN = Pattern.compile("\"token\":\"([^\"]+)\"");
-    private static final Pattern PASSWORD_TEMPORAL = Pattern.compile("\"passwordTemporal\":\"([^\"]+)\"");
 
     @Autowired
     private MockMvc mockMvc;
@@ -38,20 +37,42 @@ class AdministracionIntegracionTest {
     void altaDeProfesorConDocenteExistenteGeneraCredencialesQueFuncionan() throws Exception {
         String admin = login("admin", "password");
 
-        MvcResult alta = mockMvc.perform(post("/api/v1/usuarios")
+        mockMvc.perform(post("/api/v1/usuarios")
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"username":"nuevo.prof","email":"nuevo.prof@centro.local",
-                                 "tipoDocumento":"DNI","numeroDocumento":"87654321","rol":"PROFESOR"}
+                                 "tipoDocumento":"DNI","numeroDocumento":"87654321","rol":"PROFESOR",
+                                 "password":"ClaveInicial1"}
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.rol").value("PROFESOR"))
-                .andReturn();
+                .andExpect(jsonPath("$.rol").value("PROFESOR"));
 
-        String passwordTemporal = extraer(PASSWORD_TEMPORAL, alta.getResponse().getContentAsString());
-        assertThat(passwordTemporal).hasSize(12);
-        assertThat(login("nuevo.prof", passwordTemporal)).isNotBlank();
+        assertThat(login("nuevo.prof", "ClaveInicial1")).isNotBlank();
+    }
+
+    @Test
+    void adminRestableceLaContrasenaDeUnUsuario() throws Exception {
+        String admin = login("admin", "password");
+
+        MvcResult alta = mockMvc.perform(post("/api/v1/usuarios")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"nuevo.prof\",\"email\":\"nuevo.prof@centro.local\","
+                                + "\"tipoDocumento\":\"DNI\",\"numeroDocumento\":\"87654321\",\"rol\":\"PROFESOR\","
+                                + "\"password\":\"ClaveInicial1\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Matcher id = Pattern.compile("\"id\":(\\d+)").matcher(alta.getResponse().getContentAsString());
+        assertThat(id.find()).isTrue();
+
+        mockMvc.perform(put("/api/v1/usuarios/" + id.group(1) + "/password")
+                        .header("Authorization", "Bearer " + admin)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"password\":\"OtraClave2026\",\"debeCambiarPassword\":false}"))
+                .andExpect(status().isOk());
+
+        assertThat(login("nuevo.prof", "OtraClave2026")).isNotBlank();
     }
 
     @Test
@@ -130,6 +151,9 @@ class AdministracionIntegracionTest {
     }
 
     private String login(String usuario, String clave) throws Exception {
+        if ("profesor1".equals(usuario)) {
+            SesionPruebas.restablecerPassword(mockMvc, login("admin", "password"), SesionPruebas.ID_PROFESOR1, "password");
+        }
         MvcResult resultado = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"" + usuario + "\",\"password\":\"" + clave + "\"}"))

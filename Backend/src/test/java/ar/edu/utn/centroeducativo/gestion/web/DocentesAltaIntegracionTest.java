@@ -1,5 +1,6 @@
 package ar.edu.utn.centroeducativo.gestion.web;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,6 +47,18 @@ class DocentesAltaIntegracionTest {
     }
 
     @Test
+    void agendaDelDocenteMuestraCursosNivelMateriasYHorarios() throws Exception {
+        String admin = login("admin", "password");
+
+        mockMvc.perform(get("/api/v1/docentes/2/agenda").header("Authorization", "Bearer " + admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.docente").value("López, María"))
+                .andExpect(jsonPath("$.cursos[0].nivel").value("Secundario"))
+                .andExpect(jsonPath("$.cursos[0].materias[0].materia").value("Matemática"))
+                .andExpect(jsonPath("$.cursos[0].materias[0].horarios").isArray());
+    }
+
+    @Test
     void profesorNoPuedeDarDeAltaDocentes() throws Exception {
         String profesor = login("profesor1", "password");
 
@@ -63,6 +76,9 @@ class DocentesAltaIntegracionTest {
     }
 
     private String login(String usuario, String clave) throws Exception {
+        if ("profesor1".equals(usuario)) {
+            SesionPruebas.restablecerPassword(mockMvc, login("admin", "password"), SesionPruebas.ID_PROFESOR1, "password");
+        }
         MvcResult resultado = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"" + usuario + "\",\"password\":\"" + clave + "\"}"))

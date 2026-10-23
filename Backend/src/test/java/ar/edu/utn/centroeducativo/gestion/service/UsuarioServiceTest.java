@@ -60,14 +60,14 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void creaUsuarioConPasswordTemporalHasheada() {
+    void creaUsuarioConLaPasswordDelAdministradorHasheada() {
         when(rolRepository.findByNombre("ADMIN")).thenReturn(Optional.of(rol("ADMIN")));
         when(passwordEncoder.encode(anyString())).thenReturn("hash");
 
         var creado = usuarioService.crear(request("nuevo.admin", "nuevo@centro.local", "DNI", "30111222", "ADMIN"));
 
-        assertThat(creado.passwordTemporal()).hasSize(12);
-        verify(passwordEncoder).encode(creado.passwordTemporal());
+        assertThat(creado.username()).isEqualTo("nuevo.admin");
+        verify(passwordEncoder).encode("ClaveInicial1");
         ArgumentCaptor<Usuario> guardado = ArgumentCaptor.forClass(Usuario.class);
         verify(usuarioRepository).save(guardado.capture());
         assertThat(guardado.getValue().getPasswordHash()).isEqualTo("hash");
@@ -130,7 +130,7 @@ class UsuarioServiceTest {
     }
 
     private CrearUsuarioRequest request(String username, String email, String tipo, String numero, String rol) {
-        return new CrearUsuarioRequest(username, email, tipo, numero, rol);
+        return new CrearUsuarioRequest(username, email, tipo, numero, rol, "ClaveInicial1", null);
     }
 
     private Rol rol(String nombre) {

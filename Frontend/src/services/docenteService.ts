@@ -16,6 +16,17 @@ export interface DocenteDTO {
   cursos: string[];
 }
 
+export interface DocenteAgenda {
+  docenteId: number;
+  docente: string;
+  cursos: {
+    cursoId: number;
+    curso: string;
+    nivel: string;
+    materias: { materia: string; horarios: string[] }[];
+  }[];
+}
+
 export interface DocenteFormulario extends DocenteEdicion {
   legajo: string;
 }
@@ -42,6 +53,11 @@ class DocenteService {
 
   setToken(token: string): void {
     this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+
+  async agenda(id: number): Promise<DocenteAgenda> {
+    const response = await this.api.get<DocenteAgenda>(`/docentes/${id}/agenda`);
+    return response.data;
   }
 
   async crear(datos: DocenteFormulario): Promise<DocenteDTO> {

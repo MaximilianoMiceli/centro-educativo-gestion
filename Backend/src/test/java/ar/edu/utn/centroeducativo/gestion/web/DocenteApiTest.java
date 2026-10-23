@@ -12,6 +12,7 @@ import ar.edu.utn.centroeducativo.gestion.config.SecurityConfig;
 import ar.edu.utn.centroeducativo.gestion.exception.EdicionBloqueadaException;
 import ar.edu.utn.centroeducativo.gestion.exception.ValidacionException;
 import ar.edu.utn.centroeducativo.gestion.security.JwtTokenProvider;
+import ar.edu.utn.centroeducativo.gestion.service.DocenteAgendaService;
 import ar.edu.utn.centroeducativo.gestion.service.DocenteService;
 import ar.edu.utn.centroeducativo.gestion.service.PermisosService;
 import ar.edu.utn.centroeducativo.gestion.web.controller.DocenteController;
@@ -54,6 +55,9 @@ class DocenteApiTest {
 
     @MockitoBean
     private PermisosService permisosService;
+
+    @MockitoBean
+    private DocenteAgendaService docenteAgendaService;
 
     @BeforeEach
     void permisosPorRol() {

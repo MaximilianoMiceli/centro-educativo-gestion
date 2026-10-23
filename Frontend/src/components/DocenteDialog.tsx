@@ -3,16 +3,20 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   MenuItem,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from '@mui/material';
 import { docenteService } from '../services/docenteService';
-import type { DocenteDTO, DocenteFormulario } from '../services/docenteService';
+import type { DocenteAgenda, DocenteDTO, DocenteFormulario } from '../services/docenteService';
 
 const ESPECIALIDADES = [
   'Matemática',
@@ -53,9 +57,16 @@ export const DocenteDialog: React.FC<DocenteDialogProps> = ({ open, docente, onC
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [pestana, setPestana] = useState<'datos' | 'agenda'>('datos');
+  const [agenda, setAgenda] = useState<DocenteAgenda | null>(null);
 
   useEffect(() => {
     if (!open) return;
+    setPestana('datos');
+    setAgenda(null);
+    if (docente) {
+      docenteService.agenda(docente.id).then(setAgenda).catch(() => setAgenda(null));
+    }
     setErrores({});
     setError(null);
     setForm(docente
@@ -124,10 +135,43 @@ export const DocenteDialog: React.FC<DocenteDialogProps> = ({ open, docente, onC
         )}
       </DialogTitle>
 
+      {docente && (
+        <Tabs value={pestana} onChange={(_e, nueva: 'datos' | 'agenda') => setPestana(nueva)} sx={{ px: 3 }}>
+          <Tab value="datos" label="Datos" />
+          <Tab value="agenda" label="Agenda" />
+        </Tabs>
+      )}
+
       <DialogContent dividers>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, pt: 1 }}>
+        {pestana === 'agenda' && (
+          <Box>
+            {!agenda && <Typography variant="body2" sx={{ color: '#666' }}>Cargando agenda…</Typography>}
+            {agenda && agenda.cursos.length === 0 && (
+              <Typography variant="body2" sx={{ color: '#666' }}>Este docente todavía no tiene cursos asignados.</Typography>
+            )}
+            {agenda?.cursos.map((curso, indice) => (
+              <Box key={curso.cursoId} sx={{ mb: 2 }}>
+                {indice > 0 && <Divider sx={{ mb: 2 }} />}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{curso.curso}</Typography>
+                  <Chip size="small" label={curso.nivel} variant="outlined" />
+                </Box>
+                {curso.materias.map((materia) => (
+                  <Box key={materia.materia} sx={{ pl: 2, mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{materia.materia}</Typography>
+                    <Typography variant="body2" sx={{ color: '#555' }}>
+                      {materia.horarios.length ? materia.horarios.join(' · ') : 'Sin horarios cargados'}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {pestana === 'datos' && <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, pt: 1 }}>
           {campo('legajo', 'Legajo', !!docente)}
           {campo('dni', 'DNI', !!docente && !docente.dniEditable,
             docente && !docente.dniEditable ? 'No editable: el docente tiene usuario asociado' : undefined)}
@@ -165,20 +209,16 @@ export const DocenteDialog: React.FC<DocenteDialogProps> = ({ open, docente, onC
               <MenuItem key={estado.valor} value={estado.valor}>{estado.etiqueta}</MenuItem>
             ))}
           </TextField>
-        </Box>
-
-        {docente && (
-          <Typography variant="body2" sx={{ mt: 2, color: '#555' }}>
-            Cursos a cargo: {docente.cursos.length ? docente.cursos.join(', ') : 'ninguno'}
-          </Typography>
-        )}
+        </Box>}
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2 }}>
         <Button onClick={onClose} disabled={guardando}>Cerrar</Button>
-        <Button variant="contained" onClick={guardar} disabled={guardando}>
-          {docente ? 'Guardar cambios' : 'Dar de alta'}
-        </Button>
+        {pestana === 'datos' && (
+          <Button variant="contained" onClick={guardar} disabled={guardando}>
+            {docente ? 'Guardar cambios' : 'Dar de alta'}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

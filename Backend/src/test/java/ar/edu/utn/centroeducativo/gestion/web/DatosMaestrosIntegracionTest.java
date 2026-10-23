@@ -162,6 +162,9 @@ class DatosMaestrosIntegracionTest {
     }
 
     private String login(String usuario, String clave) throws Exception {
+        if ("profesor1".equals(usuario)) {
+            SesionPruebas.restablecerPassword(mockMvc, login("admin", "password"), SesionPruebas.ID_PROFESOR1, "password");
+        }
         MvcResult resultado = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"" + usuario + "\",\"password\":\"" + clave + "\"}"))

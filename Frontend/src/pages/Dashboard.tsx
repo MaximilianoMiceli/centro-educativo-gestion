@@ -20,7 +20,7 @@ import {
 import { Logout as LogOutIcon, School as SchoolIcon, VpnKey as VpnKeyIcon } from '@mui/icons-material';
 import { AlumnosPanel } from '../components/AlumnosPanel';
 import { DocentesPanel } from '../components/DocentesPanel';
-import { UsuarioAlta } from '../components/UsuarioAlta';
+import { UsuariosPanel } from '../components/UsuariosPanel';
 import { PermisosRoles } from '../components/PermisosRoles';
 import { DatosMaestros } from '../components/DatosMaestros';
 import { FormularioCambioPassword } from '../components/CambiarPassword';
@@ -149,7 +149,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
 
         {!esAdmin || pestana === 'alumnos' ? <AlumnosPanel token={token} /> : null}
         {esAdmin && pestana === 'docentes' ? <DocentesPanel token={token} /> : null}
-        {esAdmin && pestana === 'usuarios' ? <UsuarioAlta token={token} /> : null}
+        {esAdmin && pestana === 'usuarios' ? <UsuariosPanel token={token} /> : null}
         {esAdmin && pestana === 'permisos' ? <PermisosRoles token={token} /> : null}
         {esAdmin && pestana === 'datos' ? <DatosMaestros token={token} /> : null}
 

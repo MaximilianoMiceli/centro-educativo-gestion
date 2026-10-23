@@ -13,6 +13,8 @@ export interface CrearUsuarioDatos {
   tipoDocumento: string;
   numeroDocumento: string;
   rol: RolNombre;
+  password: string;
+  debeCambiarPassword: boolean;
 }
 
 export interface UsuarioCreado {
@@ -20,7 +22,16 @@ export interface UsuarioCreado {
   username: string;
   email: string;
   rol: RolNombre;
-  passwordTemporal: string;
+}
+
+export interface UsuarioLista {
+  id: number;
+  username: string;
+  email: string;
+  rol: RolNombre;
+  numeroDocumento: string | null;
+  activo: boolean;
+  debeCambiarPassword: boolean;
 }
 
 export interface PermisoDTO {
@@ -50,6 +61,15 @@ class AdminService {
   async crearUsuario(datos: CrearUsuarioDatos): Promise<UsuarioCreado> {
     const response = await this.api.post<UsuarioCreado>('/usuarios', datos);
     return response.data;
+  }
+
+  async listarUsuarios(): Promise<UsuarioLista[]> {
+    const response = await this.api.get<UsuarioLista[]>('/usuarios');
+    return response.data;
+  }
+
+  async restablecerPassword(id: number, password: string, debeCambiarPassword: boolean): Promise<void> {
+    await this.api.put(`/usuarios/${id}/password`, { password, debeCambiarPassword });
   }
 
   async listarPermisos(): Promise<PermisoDTO[]> {

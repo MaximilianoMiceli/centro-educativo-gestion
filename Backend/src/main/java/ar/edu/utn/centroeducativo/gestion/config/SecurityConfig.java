@@ -98,6 +98,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/permisos/**", "/api/v1/roles/**").hasAuthority("PERMISOS_ADMINISTRAR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/alumnos", "/api/v1/alumnos/**").hasAuthority("ALUMNOS_ADMINISTRAR")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/alumnos/**").hasAuthority("ALUMNOS_ADMINISTRAR")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/alumnos/**").hasAuthority("ALUMNOS_ADMINISTRAR")
+                .requestMatchers(HttpMethod.POST, "/api/v1/deportes/**").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/deportes/**").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/niveles", "/api/v1/cursos", "/api/v1/materias",
                         "/api/v1/dictados", "/api/v1/horarios").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
                 .anyRequest().authenticated()

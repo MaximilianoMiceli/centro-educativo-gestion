@@ -15,7 +15,6 @@ import ar.edu.utn.centroeducativo.gestion.web.dto.AlumnoMateriaDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DatosAlumnoRequest;
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -38,8 +37,6 @@ public class AlumnoAdministracionService {
     private static final Pattern TELEFONO = Pattern.compile("\\d{10}");
     private static final int EDAD_MINIMA = 3;
     private static final int EDAD_MAXIMA = 25;
-    private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("HH:mm");
-    private static final String[] DIAS = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
 
     private final AlumnoRepository alumnoRepository;
     private final CursoRepository cursoRepository;
@@ -150,7 +147,7 @@ public class AlumnoAdministracionService {
                         dictado.getMateria().getNombre(),
                         dictado.getDocente().getApellido() + ", " + dictado.getDocente().getNombre(),
                         horarioRepository.findByDictado_IdOrderByDiaSemanaAscHoraInicioAsc(dictado.getId()).stream()
-                                .map(AlumnoAdministracionService::formatear)
+                                .map(FormatoHorario::formatear)
                                 .toList()))
                 .toList();
     }
@@ -243,11 +240,6 @@ public class AlumnoAdministracionService {
 
     private static boolean coincide(Pattern patron, String valor) {
         return valor != null && patron.matcher(valor).matches();
-    }
-
-    private static String formatear(Horario horario) {
-        return DIAS[horario.getDiaSemana() - 1] + " " + horario.getHoraInicio().format(HORA)
-                + " a " + horario.getHoraFin().format(HORA);
     }
 
     private AlumnoFichaDTO toDTO(Alumno alumno) {

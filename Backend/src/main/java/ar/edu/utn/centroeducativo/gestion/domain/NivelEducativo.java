@@ -18,4 +18,8 @@ public class NivelEducativo {
     private Short id;
 
     private String nombre;
+
+    public String getNombreLegible() {
+        return nombre.charAt(0) + nombre.substring(1).toLowerCase();
+    }
 }

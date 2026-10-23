@@ -5,7 +5,9 @@ public record CrearUsuarioRequest(
         String email,
         String tipoDocumento,
         String numeroDocumento,
-        String rol
+        String rol,
+        String password,
+        Boolean debeCambiarPassword
 ) {
 
     public CrearUsuarioRequest {

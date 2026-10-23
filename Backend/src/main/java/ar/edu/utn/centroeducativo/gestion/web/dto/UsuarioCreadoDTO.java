@@ -4,7 +4,6 @@ public record UsuarioCreadoDTO(
         Long id,
         String username,
         String email,
-        String rol,
-        String passwordTemporal
+        String rol
 ) {
 }
