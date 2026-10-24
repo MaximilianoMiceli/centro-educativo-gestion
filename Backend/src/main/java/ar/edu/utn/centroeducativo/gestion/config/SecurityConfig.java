@@ -105,6 +105,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/v1/deportes/**").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/niveles", "/api/v1/cursos", "/api/v1/materias",
                         "/api/v1/dictados", "/api/v1/horarios").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
+                .requestMatchers(HttpMethod.POST, "/api/v1/instalaciones", "/api/v1/instalaciones/**").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/instalaciones/**").hasAuthority("DATOS_MAESTROS_ADMINISTRAR")
                 .requestMatchers("/api/v1/reportes/**").hasAuthority("REPORTES_GENERAR")
                 .anyRequest().authenticated()
             )

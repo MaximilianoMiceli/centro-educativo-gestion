@@ -24,6 +24,8 @@ import { datosMaestrosService } from '../services/datosMaestrosService';
 import type { CursoDTO, NivelDTO } from '../services/datosMaestrosService';
 import { rolDelToken } from '../utils/token';
 import { AlumnoDialog } from './AlumnoDialog';
+import { PaginadorTabla } from './PaginadorTabla';
+import { usePaginacion } from '../utils/usePaginacion';
 
 interface AlumnosPanelProps {
   token: string;
@@ -46,6 +48,7 @@ export const AlumnosPanel: React.FC<AlumnosPanelProps> = ({ token }) => {
   const [cargando, setCargando] = useState(false);
   const [dialogo, setDialogo] = useState<{ abierto: boolean; alumno: AlumnoFicha | null }>({ abierto: false, alumno: null });
   const [aviso, setAviso] = useState<{ tipo: 'success' | 'error'; texto: string } | null>(null);
+  const paginado = usePaginacion(alumnos);
 
   useEffect(() => {
     alumnosAdminService.setToken(token);
@@ -151,7 +154,7 @@ export const AlumnosPanel: React.FC<AlumnosPanelProps> = ({ token }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {alumnos.map((a) => (
+            {paginado.visibles.map((a) => (
               <TableRow
                 key={a.id}
                 hover
@@ -177,6 +180,13 @@ export const AlumnosPanel: React.FC<AlumnosPanelProps> = ({ token }) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <PaginadorTabla
+        total={paginado.total}
+        pagina={paginado.pagina}
+        porPagina={paginado.porPagina}
+        onPaginaChange={paginado.setPagina}
+        onPorPaginaChange={paginado.cambiarPorPagina}
+      />
 
       <AlumnoDialog
         open={dialogo.abierto}

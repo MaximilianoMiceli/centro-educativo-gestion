@@ -26,6 +26,9 @@ import {
 } from '@mui/material';
 import { adminService, ROLES, TIPOS_DOCUMENTO } from '../services/adminService';
 import { alumnosAdminService } from '../services/alumnosAdminService';
+import { filtrarUsuarios } from '../utils/usuarios';
+import { PaginadorTabla } from './PaginadorTabla';
+import { usePaginacion } from '../utils/usePaginacion';
 import type { CrearUsuarioDatos, RolNombre, UsuarioLista } from '../services/adminService';
 
 interface UsuariosPanelProps {
@@ -60,6 +63,11 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
   const [hijosDe, setHijosDe] = useState<UsuarioLista | null>(null);
   const [alumnosTodos, setAlumnosTodos] = useState<{ id: number; legajo: string; alumno: string }[]>([]);
   const [seleccionHijos, setSeleccionHijos] = useState<number[]>([]);
+  const [texto, setTexto] = useState('');
+  const [filtroRol, setFiltroRol] = useState<RolNombre | ''>('');
+
+  const usuariosFiltrados = filtrarUsuarios(usuarios, texto, filtroRol);
+  const paginado = usePaginacion(usuariosFiltrados);
 
   const cargar = () => adminService.listarUsuarios().then(setUsuarios);
 
@@ -244,6 +252,31 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
       </Card>
 
       <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>Usuarios</Typography>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '2fr 1fr' }, gap: 2, mb: 2 }}>
+        <TextField
+          placeholder="Buscar por username, correo o documento"
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          size="small"
+          fullWidth
+        />
+        <TextField
+          select
+          label="Rol"
+          value={filtroRol}
+          onChange={(e) => setFiltroRol(e.target.value as RolNombre | '')}
+          size="small"
+          fullWidth
+        >
+          <MenuItem value="">Todos los roles</MenuItem>
+          {ROLES.map((rol) => (
+            <MenuItem key={rol} value={rol}>{rol}</MenuItem>
+          ))}
+        </TextField>
+      </Box>
+      <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+        {usuariosFiltrados.length} de {usuarios.length} usuarios
+      </Typography>
       <TableContainer component={Paper} sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
         <Table size="small">
           <TableHead>
@@ -256,7 +289,12 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {usuarios.map((u) => (
+            {usuariosFiltrados.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} align="center">Ningún usuario coincide con la búsqueda</TableCell>
+              </TableRow>
+            )}
+            {paginado.visibles.map((u) => (
               <TableRow key={u.id} hover>
                 <TableCell>{u.username}</TableCell>
                 <TableCell>{u.rol}</TableCell>
@@ -277,6 +315,13 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <PaginadorTabla
+        total={paginado.total}
+        pagina={paginado.pagina}
+        porPagina={paginado.porPagina}
+        onPaginaChange={paginado.setPagina}
+        onPorPaginaChange={paginado.cambiarPorPagina}
+      />
 
       <Dialog open={!!restablecer} onClose={() => setRestablecer(null)} fullWidth maxWidth="xs">
         <DialogTitle>Restablecer contraseña de {restablecer?.username}</DialogTitle>

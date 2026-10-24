@@ -32,7 +32,9 @@ import type { DocenteDTO } from '../services/docenteService';
 import { serviciosService } from '../services/serviciosService';
 import type { Deporte, Recorrido } from '../services/serviciosService';
 import { reportesService } from '../services/reportesService';
-import type { CatalogoReporte, FormatoDescarga, Reporte } from '../services/reportesService';
+import type { CatalogoReporte, FormatoDescarga, Reporte, SeccionReporte } from '../services/reportesService';
+import { PaginadorTabla } from './PaginadorTabla';
+import { usePaginacion } from '../utils/usePaginacion';
 import { CLAVE_FILTRO, REGLAS_REPORTES, faltantes } from '../utils/reportes';
 import type { FiltroReporte, FiltrosSeleccionados } from '../utils/reportes';
 
@@ -67,6 +69,55 @@ const ETIQUETAS: Record<FiltroReporte, string> = {
   deporte: 'Deporte',
   recorrido: 'Recorrido',
 };
+
+const TablaSeccion: React.FC<{ seccion: SeccionReporte }> = ({ seccion }) => {
+  const paginado = usePaginacion(seccion.filas);
+
+  return (
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 700, mb: 1 }}>
+        {seccion.titulo}
+      </Typography>
+      <TableContainer sx={{ border: '1px solid #e4ecf4', borderRadius: 1 }}>
+        <Table size="small" stickyHeader>
+          <TableHead>
+            <TableRow>
+              {seccion.columnas.map((columna) => (
+                <TableCell key={columna} sx={{ fontWeight: 700 }}>
+                  {columna}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {seccion.filas.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={seccion.columnas.length} align="center">
+                  Sin resultados
+                </TableCell>
+              </TableRow>
+            )}
+            {paginado.visibles.map((fila, indice) => (
+              <TableRow key={indice} hover>
+                {fila.map((celda, columna) => (
+                  <TableCell key={columna}>{celda}</TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <PaginadorTabla
+        total={paginado.total}
+        pagina={paginado.pagina}
+        porPagina={paginado.porPagina}
+        onPaginaChange={paginado.setPagina}
+        onPorPaginaChange={paginado.cambiarPorPagina}
+      />
+    </Box>
+  );
+};
+
 
 export const ReportesPanel: React.FC<ReportesPanelProps> = ({ token }) => {
   const [catalogo, setCatalogo] = useState<CatalogoReporte[]>([]);
@@ -328,40 +379,7 @@ export const ReportesPanel: React.FC<ReportesPanelProps> = ({ token }) => {
               )}
 
               {reporte.secciones.map((seccion) => (
-                <Box key={seccion.titulo} sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 700, mb: 1 }}>
-                    {seccion.titulo}
-                  </Typography>
-                  <TableContainer sx={{ maxHeight: 420, border: '1px solid #e4ecf4', borderRadius: 1 }}>
-                    <Table size="small" stickyHeader>
-                      <TableHead>
-                        <TableRow>
-                          {seccion.columnas.map((columna) => (
-                            <TableCell key={columna} sx={{ fontWeight: 700 }}>
-                              {columna}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {seccion.filas.length === 0 && (
-                          <TableRow>
-                            <TableCell colSpan={seccion.columnas.length} align="center">
-                              Sin resultados
-                            </TableCell>
-                          </TableRow>
-                        )}
-                        {seccion.filas.map((fila, indice) => (
-                          <TableRow key={indice} hover>
-                            {fila.map((celda, columna) => (
-                              <TableCell key={columna}>{celda}</TableCell>
-                            ))}
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Box>
+                <TablaSeccion key={seccion.titulo} seccion={seccion} />
               ))}
             </Box>
           )}

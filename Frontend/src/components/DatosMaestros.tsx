@@ -22,13 +22,15 @@ import {
 import type { CursoDTO, DictadoDTO, HorarioDTO, MateriaDTO, NivelDTO } from '../services/datosMaestrosService';
 import { docenteService } from '../services/docenteService';
 import { DeportesSeccion } from './DeportesSeccion';
+import { InstalacionesSeccion } from './InstalacionesSeccion';
+import { instalacionesService } from '../services/instalacionesService';
 import type { DocenteDTO } from '../services/docenteService';
 
 interface DatosMaestrosProps {
   token: string;
 }
 
-type Seccion = 'niveles' | 'cursos' | 'materias' | 'asignaciones' | 'deportes';
+type Seccion = 'niveles' | 'cursos' | 'materias' | 'asignaciones' | 'deportes' | 'instalaciones';
 type Errores = Record<string, string>;
 type Aviso = { tipo: 'success' | 'error'; texto: string } | null;
 
@@ -471,6 +473,7 @@ export const DatosMaestros: React.FC<DatosMaestrosProps> = ({ token }) => {
   useEffect(() => {
     datosMaestrosService.setToken(token);
     docenteService.setToken(token);
+    instalacionesService.setToken(token);
   }, [token]);
 
   return (
@@ -490,6 +493,7 @@ export const DatosMaestros: React.FC<DatosMaestrosProps> = ({ token }) => {
         <Tab value="materias" label="Materias" />
         <Tab value="asignaciones" label="Asignaciones" />
         <Tab value="deportes" label="Deportes" />
+        <Tab value="instalaciones" label="Instalaciones" />
       </Tabs>
 
       {aviso && (
@@ -503,6 +507,7 @@ export const DatosMaestros: React.FC<DatosMaestrosProps> = ({ token }) => {
       {seccion === 'materias' && <MateriasSeccion onAviso={setAviso} />}
       {seccion === 'asignaciones' && <AsignacionesSeccion onAviso={setAviso} />}
       {seccion === 'deportes' && <DeportesSeccion onAviso={setAviso} />}
+      {seccion === 'instalaciones' && <InstalacionesSeccion onAviso={setAviso} />}
     </Box>
   );
 };

@@ -20,6 +20,8 @@ import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
 import { docenteService } from '../services/docenteService';
 import type { DocenteDTO } from '../services/docenteService';
 import { DocenteDialog } from './DocenteDialog';
+import { PaginadorTabla } from './PaginadorTabla';
+import { usePaginacion } from '../utils/usePaginacion';
 
 interface DocentesPanelProps {
   token: string;
@@ -58,6 +60,8 @@ export const DocentesPanel: React.FC<DocentesPanelProps> = ({ token }) => {
     return docentes.filter((d) =>
       [d.legajo, d.dni, d.nombre, d.apellido].some((valor) => valor.toLowerCase().includes(termino)));
   }, [docentes, texto]);
+
+  const paginado = usePaginacion(filtrados);
 
   const alGuardar = (guardado: DocenteDTO, esNuevo: boolean) => {
     setDialogo({ abierto: false, docente: null });
@@ -116,7 +120,7 @@ export const DocentesPanel: React.FC<DocentesPanelProps> = ({ token }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filtrados.map((d) => (
+            {paginado.visibles.map((d) => (
               <TableRow
                 key={d.id}
                 hover
@@ -142,6 +146,13 @@ export const DocentesPanel: React.FC<DocentesPanelProps> = ({ token }) => {
           </TableBody>
         </Table>
       </TableContainer>
+      <PaginadorTabla
+        total={paginado.total}
+        pagina={paginado.pagina}
+        porPagina={paginado.porPagina}
+        onPaginaChange={paginado.setPagina}
+        onPorPaginaChange={paginado.cambiarPorPagina}
+      />
 
       <DocenteDialog
         open={dialogo.abierto}
