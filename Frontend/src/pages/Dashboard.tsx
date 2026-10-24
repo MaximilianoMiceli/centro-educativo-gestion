@@ -17,15 +17,18 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import { Logout as LogOutIcon, School as SchoolIcon, VpnKey as VpnKeyIcon } from '@mui/icons-material';
+import { Logout as LogOutIcon, VpnKey as VpnKeyIcon } from '@mui/icons-material';
 import { AlumnosPanel } from '../components/AlumnosPanel';
 import { MiInformacion } from '../components/MiInformacion';
 import { DocentesPanel } from '../components/DocentesPanel';
 import { UsuariosPanel } from '../components/UsuariosPanel';
 import { PermisosRoles } from '../components/PermisosRoles';
 import { DatosMaestros } from '../components/DatosMaestros';
+import { ReportesPanel } from '../components/ReportesPanel';
+import { LogoInstitucional } from '../components/LogoInstitucional';
 import { FormularioCambioPassword } from '../components/CambiarPassword';
 import { rolDelToken } from '../utils/token';
+import { INSTITUCION } from '../institucion';
 
 interface DashboardProps {
   token: string;
@@ -33,14 +36,17 @@ interface DashboardProps {
   onTokenActualizado: (nuevoToken: string) => void;
 }
 
-type Pestana = 'alumnos' | 'docentes' | 'usuarios' | 'permisos' | 'datos';
+type Pestana = 'alumnos' | 'docentes' | 'usuarios' | 'permisos' | 'datos' | 'reportes';
 
 export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenActualizado }) => {
   const [pestana, setPestana] = useState<Pestana>('alumnos');
   const [cambioAbierto, setCambioAbierto] = useState(false);
   const [avisoCambio, setAvisoCambio] = useState(false);
-  const esAdmin = rolDelToken(token) === 'ADMIN';
-  const esFamilia = ['PADRE', 'ALUMNO'].includes(rolDelToken(token) ?? '');
+  const rol = rolDelToken(token);
+  const esAdmin = rol === 'ADMIN';
+  const puedeReportes = rol === 'ADMIN' || rol === 'DIRECCION';
+  const esFamilia = ['PADRE', 'ALUMNO'].includes(rol ?? '');
+  const mostrarPestanas = esAdmin || puedeReportes;
 
   const alCambiarPassword = (nuevoToken: string) => {
     onTokenActualizado(nuevoToken);
@@ -59,10 +65,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
         }}
       >
         <Toolbar>
-          <SchoolIcon sx={{ marginRight: 1.5, fontSize: 28 }} />
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
-            Centro Educativo - Sistema de Gestión
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, mr: 1.5, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.95)' }}>
+            <LogoInstitucional size={32} />
+          </Box>
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+              {INSTITUCION.nombre}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.85 }}>
+              Sistema de Gestión
+            </Typography>
+          </Box>
           <Button
             color="inherit"
             startIcon={<VpnKeyIcon />}
@@ -139,25 +152,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
           </CardContent>
         </Card>
 
-        {esAdmin && (
+        {mostrarPestanas && (
           <Tabs value={pestana} onChange={(_e, nueva: Pestana) => setPestana(nueva)} centered sx={{ mb: 3 }}>
             <Tab value="alumnos" label="Alumnos" />
-            <Tab value="docentes" label="Docentes" />
-            <Tab value="usuarios" label="Usuarios" />
-            <Tab value="permisos" label="Permisos" />
-            <Tab value="datos" label="Datos" />
+            {esAdmin && <Tab value="docentes" label="Docentes" />}
+            {esAdmin && <Tab value="usuarios" label="Usuarios" />}
+            {esAdmin && <Tab value="permisos" label="Permisos" />}
+            {esAdmin && <Tab value="datos" label="Datos" />}
+            {puedeReportes && <Tab value="reportes" label="Reportes" />}
           </Tabs>
         )}
 
-        {esFamilia ? <MiInformacion token={token} /> : (!esAdmin || pestana === 'alumnos') ? <AlumnosPanel token={token} /> : null}
+        {esFamilia ? <MiInformacion token={token} /> : (!mostrarPestanas || pestana === 'alumnos') ? <AlumnosPanel token={token} /> : null}
         {esAdmin && pestana === 'docentes' ? <DocentesPanel token={token} /> : null}
         {esAdmin && pestana === 'usuarios' ? <UsuariosPanel token={token} /> : null}
         {esAdmin && pestana === 'permisos' ? <PermisosRoles token={token} /> : null}
         {esAdmin && pestana === 'datos' ? <DatosMaestros token={token} /> : null}
+        {puedeReportes && pestana === 'reportes' ? <ReportesPanel token={token} /> : null}
 
         {/* Footer Info */}
         <Box sx={{ marginTop: 4, textAlign: 'center', color: '#999' }}>
           <Typography variant="caption">
+            <br />
+            © 2026 {INSTITUCION.nombre} · {INSTITUCION.localidad}
             <br />
             Sistema seguro con autenticación JWT y auditoría automática
           </Typography>

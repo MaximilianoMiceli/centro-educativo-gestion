@@ -7,11 +7,11 @@ import {
   Alert,
   CircularProgress,
   Container,
-  Avatar,
   Paper,
 } from '@mui/material';
-import { School as SchoolIcon } from '@mui/icons-material';
 import { API_URL } from '../config';
+import { LogoInstitucional } from '../components/LogoInstitucional';
+import { INSTITUCION } from '../institucion';
 
 interface LoginProps {
   onLogin: (token: string) => void;
@@ -76,24 +76,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           }}
         >
           {/* Logo */}
-          <Avatar
-            sx={{
-              width: 80,
-              height: 80,
-              margin: '0 auto 2rem',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              fontSize: '2.5rem',
-            }}
-          >
-            <SchoolIcon sx={{ fontSize: 50 }} />
-          </Avatar>
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
+            <LogoInstitucional size={80} />
+          </Box>
 
           {/* Título */}
           <Typography variant="h4" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
-            Centro Educativo
+            {INSTITUCION.nombre}
           </Typography>
           <Typography variant="subtitle1" sx={{ color: '#666', marginBottom: 3 }}>
-            Sistema de Gestión Educativa
+            {INSTITUCION.subtitulo} · Sistema de Gestión
           </Typography>
 
           {/* Formulario */}
