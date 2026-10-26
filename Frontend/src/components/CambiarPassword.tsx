@@ -1,3 +1,4 @@
+import { GRADIENTE_PRINCIPAL } from '../institucion';
 import React, { useState } from 'react';
 import { Alert, Box, Button, Card, CardContent, Container, TextField, Typography } from '@mui/material';
 import { API_URL } from '../config';
@@ -89,7 +90,7 @@ export const FormularioCambioPassword: React.FC<FormularioCambioPasswordProps> =
         variant="contained"
         onClick={guardar}
         disabled={guardando || !actual || !nueva || !repetir}
-        sx={{ mt: 2, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', fontWeight: 600 }}
+        sx={{ mt: 2, background: GRADIENTE_PRINCIPAL, fontWeight: 600 }}
       >
         Guardar nueva contraseña
       </Button>

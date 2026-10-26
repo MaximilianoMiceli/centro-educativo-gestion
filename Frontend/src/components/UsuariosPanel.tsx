@@ -1,3 +1,4 @@
+import { GRADIENTE_PRINCIPAL } from '../institucion';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -244,7 +245,7 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
             variant="contained"
             onClick={crear}
             disabled={guardando || !form.username || !form.password || !repetir}
-            sx={{ mt: 1, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', fontWeight: 600 }}
+            sx={{ mt: 1, background: GRADIENTE_PRINCIPAL, fontWeight: 600 }}
           >
             Crear usuario
           </Button>

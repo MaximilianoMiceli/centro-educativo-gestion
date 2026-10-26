@@ -1,3 +1,4 @@
+import { GRADIENTE_PRINCIPAL } from '../institucion';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -80,7 +81,7 @@ export const DocentesPanel: React.FC<DocentesPanelProps> = ({ token }) => {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setDialogo({ abierto: true, docente: null })}
-          sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', fontWeight: 600 }}
+          sx={{ background: GRADIENTE_PRINCIPAL, fontWeight: 600 }}
         >
           Nuevo docente
         </Button>

@@ -7,6 +7,7 @@ import { adminService } from '../services/adminService';
 import { docenteService } from '../services/docenteService';
 import { instalacionesService } from '../services/instalacionesService';
 import { rolDelToken } from '../utils/token';
+import { PALETA } from '../institucion';
 
 interface InicioProps {
   token: string;
@@ -28,6 +29,7 @@ interface Tarjeta {
   valor: number | string;
   detalle: string;
   icono: React.ReactNode;
+  color: string;
 }
 
 export const Inicio: React.FC<InicioProps> = ({ token }) => {
@@ -69,6 +71,7 @@ export const Inicio: React.FC<InicioProps> = ({ token }) => {
           valor: indicadores.alumnosActivos,
           detalle: `de ${indicadores.alumnosTotal} registrados`,
           icono: <Groups />,
+          color: PALETA.verde,
         },
         ...(esAdmin
           ? [
@@ -78,6 +81,7 @@ export const Inicio: React.FC<InicioProps> = ({ token }) => {
                 valor: indicadores.docentesActivos,
                 detalle: `de ${indicadores.docentesTotal} registrados`,
                 icono: <Badge />,
+                color: PALETA.magenta,
               },
               {
                 ruta: '/usuarios',
@@ -85,6 +89,7 @@ export const Inicio: React.FC<InicioProps> = ({ token }) => {
                 valor: indicadores.usuarios,
                 detalle: 'usuarios del sistema',
                 icono: <ManageAccounts />,
+                color: PALETA.purpura,
               },
             ]
           : []),
@@ -94,6 +99,7 @@ export const Inicio: React.FC<InicioProps> = ({ token }) => {
           valor: indicadores.instalacionesActivas,
           detalle: `${indicadores.instalacionesMantenimiento} en mantenimiento`,
           icono: <Apartment />,
+          color: PALETA.naranja,
         },
       ]
     : [];
@@ -116,12 +122,12 @@ export const Inicio: React.FC<InicioProps> = ({ token }) => {
       {indicadores && (
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 2, mb: 4 }}>
           {tarjetas.map((t) => (
-            <Card key={t.titulo} sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)', borderRadius: 2 }}>
+            <Card key={t.titulo} sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)', borderRadius: 2, borderTop: `4px solid ${t.color}` }}>
               <CardActionArea component={RouterLink} to={t.ruta}>
                 <CardContent>
-                  <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5, color: '#1a5fa8' }}>
+                  <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5, color: t.color }}>
                     {t.icono}
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#333' }}>{t.titulo}</Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: PALETA.grisTexto }}>{t.titulo}</Typography>
                   </Stack>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>{t.valor}</Typography>
                   <Typography variant="body2" sx={{ color: '#666' }}>{t.detalle}</Typography>

@@ -47,7 +47,7 @@ public class ReporteExportador {
     private static final ZoneId ZONA = ZoneId.of("America/Argentina/Buenos_Aires");
     private static final DateTimeFormatter FECHA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private static final Color AZUL = new Color(0x1a5fa8);
+    private static final Color AZUL = new Color(0x094a98);
     private static final Color GRIS = new Color(0x4b5d72);
     private static final Color TEXTO = new Color(0x1a2636);
     private static final Color ZEBRA = new Color(0xf3f6fa);

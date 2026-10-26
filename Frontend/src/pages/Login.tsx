@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { API_URL } from '../config';
 import { LogoInstitucional } from '../components/LogoInstitucional';
-import { INSTITUCION } from '../institucion';
+import { FONDO_INGRESO, GRADIENTE_PRINCIPAL, INSTITUCION } from '../institucion';
 
 interface LoginProps {
   onLogin: (token: string) => void;
@@ -62,7 +62,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: FONDO_INGRESO,
         padding: 2,
       }}
     >
@@ -125,7 +125,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               sx={{
                 marginTop: 3,
                 marginBottom: 2,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: GRADIENTE_PRINCIPAL,
                 padding: '12px',
                 fontSize: '1rem',
                 fontWeight: 600,
@@ -145,10 +145,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </Typography>
           <Typography variant="caption" sx={{ display: 'block', color: '#999', marginTop: 1 }}>
             También puedes usar: <strong>profesor1</strong> / <strong>password</strong>
-          </Typography>
-
-          <Typography variant="caption" sx={{ display: 'block', color: '#CCC', marginTop: 3 }}>
-            Sprint 1 - Demostración | Backend: Java 21 + Spring Boot 4.1.1
           </Typography>
         </Paper>
       </Container>

@@ -40,7 +40,7 @@ import {
 import { LogoInstitucional } from '../components/LogoInstitucional';
 import { FormularioCambioPassword } from '../components/CambiarPassword';
 import { rolDelToken } from '../utils/token';
-import { INSTITUCION } from '../institucion';
+import { GRADIENTE_PRINCIPAL, INSTITUCION, PALETA } from '../institucion';
 import { agruparMenu, itemsPermitidos } from '../utils/navegacion';
 import type { ItemMenu } from '../utils/navegacion';
 
@@ -90,7 +90,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
         to={item.ruta}
         selected={activo}
         onClick={() => setMenuAbierto(false)}
-        sx={{ borderRadius: 2, mx: 1, mb: 0.5, '&.Mui-selected': { backgroundColor: '#e8f0fb', color: '#134a84' } }}
+        sx={{ borderRadius: 2, mx: 1, mb: 0.5, '&.Mui-selected': { backgroundColor: PALETA.azulSuave, color: PALETA.azul } }}
       >
         <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}>{ICONOS[item.icono]}</ListItemIcon>
         <ListItemText primary={item.etiqueta} slotProps={{ primary: { sx: { fontSize: 14, fontWeight: activo ? 700 : 500 } } }} />
@@ -119,7 +119,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F5F7FB' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: PALETA.grisSuave }}>
       {/* Menú fijo en escritorio */}
       <Box
         component="aside"
@@ -147,7 +147,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
         <AppBar
           position="sticky"
           sx={{
-            background: 'linear-gradient(135deg, #1a5fa8 0%, #134a84 100%)',
+            background: GRADIENTE_PRINCIPAL,
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           }}
         >

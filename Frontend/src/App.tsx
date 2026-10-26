@@ -15,14 +15,15 @@ import { ReportesPanel } from './components/ReportesPanel';
 import { MiInformacion } from './components/MiInformacion';
 import { debeCambiarPasswordDelToken, rolDelToken } from './utils/token';
 import { esSeccionDatos, puedeVer, rutaInicial } from './utils/navegacion';
+import { PALETA } from './institucion';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1a5fa8',
+      main: PALETA.azulOscuro,
     },
     secondary: {
-      main: '#4caf82',
+      main: PALETA.verde,
     },
   },
   typography: {
