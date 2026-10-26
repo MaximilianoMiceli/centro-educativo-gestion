@@ -69,6 +69,13 @@ public class DocenteService {
     }
 
     @Transactional(readOnly = true)
+    public DocenteDTO obtener(Long id) {
+        return docenteRepository.findById(id)
+                .map(this::toDTO)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Docente con ID " + id + " no encontrado"));
+    }
+
+    @Transactional(readOnly = true)
     public List<DocenteDTO> listar() {
         return docenteRepository.findAll().stream()
                 .sorted(Comparator.comparing(Docente::getApellido).thenComparing(Docente::getNombre))

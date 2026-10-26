@@ -21,6 +21,7 @@ import type { CursoDTO, DictadoDTO, HorarioDTO, MateriaDTO, NivelDTO } from '../
 import { docenteService } from '../services/docenteService';
 import { DeportesSeccion } from './DeportesSeccion';
 import { InstalacionesSeccion } from './InstalacionesSeccion';
+import { RecorridosSeccion } from './RecorridosSeccion';
 import type { SeccionDatos } from '../utils/navegacion';
 import { instalacionesService } from '../services/instalacionesService';
 import type { DocenteDTO } from '../services/docenteService';
@@ -472,6 +473,7 @@ const TITULOS: Record<SeccionDatos, string> = {
   asignaciones: 'Asignaciones de docentes',
   deportes: 'Deportes',
   instalaciones: 'Instalaciones',
+  transporte: 'Recorridos de transporte',
 };
 
 export const DatosMaestros: React.FC<DatosMaestrosProps> = ({ token, seccion }) => {
@@ -499,6 +501,7 @@ export const DatosMaestros: React.FC<DatosMaestrosProps> = ({ token, seccion }) 
       {seccion === 'asignaciones' && <AsignacionesSeccion onAviso={setAviso} />}
       {seccion === 'deportes' && <DeportesSeccion onAviso={setAviso} />}
       {seccion === 'instalaciones' && <InstalacionesSeccion onAviso={setAviso} />}
+      {seccion === 'transporte' && <RecorridosSeccion onAviso={setAviso} />}
     </Box>
   );
 };

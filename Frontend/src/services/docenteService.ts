@@ -65,6 +65,10 @@ class DocenteService {
     return response.data;
   }
 
+  async obtener(id: number): Promise<DocenteDTO> {
+    return (await this.api.get<DocenteDTO>(`/docentes/${id}`)).data;
+  }
+
   async listar(): Promise<DocenteDTO[]> {
     const response = await this.api.get<DocenteDTO[]>('/docentes');
     return response.data;

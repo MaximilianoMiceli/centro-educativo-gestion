@@ -51,12 +51,15 @@ class UsuarioServiceTest {
     @Mock
     private AuditoriaService auditoriaService;
 
+    @Mock
+    private ar.edu.utn.centroeducativo.gestion.security.UsuarioActual usuarioActual;
+
     private UsuarioService usuarioService;
 
     @BeforeEach
     void setUp() {
         usuarioService = new UsuarioService(usuarioRepository, rolRepository, docenteRepository,
-                alumnoRepository, padreRepository, passwordEncoder, auditoriaService);
+                alumnoRepository, padreRepository, passwordEncoder, auditoriaService, usuarioActual);
     }
 
     @Test

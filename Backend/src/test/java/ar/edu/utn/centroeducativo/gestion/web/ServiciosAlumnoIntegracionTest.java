@@ -36,10 +36,10 @@ class ServiciosAlumnoIntegracionTest {
     @Test
     void inscripcionADeportesRespetaLasReglas() throws Exception {
         String admin = login("admin", "password");
-        long ajedrez = crearDeporteConGrupo(admin, "Ajedrez prueba", 6, "10:00", "11:00");
-        long yoga = crearDeporteConGrupo(admin, "Yoga prueba", 6, "10:30", "11:30");
-        long tenis = crearDeporteConGrupo(admin, "Tenis prueba", 2, "10:00", "11:00");
-        long rugby = crearDeporteConGrupo(admin, "Rugby prueba", 3, "10:00", "11:00");
+        long ajedrez = crearDeporteConGrupo(admin, "Ajedrez prueba", 3, 6, "10:00", "11:00");
+        long yoga = crearDeporteConGrupo(admin, "Yoga prueba", 4, 6, "10:30", "11:30");
+        long tenis = crearDeporteConGrupo(admin, "Tenis prueba", 5, 2, "10:00", "11:00");
+        long rugby = crearDeporteConGrupo(admin, "Rugby prueba", 7, 3, "10:00", "11:00");
 
         inscribir(admin, 1, ajedrez).andExpect(status().isCreated());
 
@@ -116,7 +116,7 @@ class ServiciosAlumnoIntegracionTest {
         MvcResult remo = mockMvc.perform(post("/api/v1/deportes")
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Remo responsable\"}"))
+                        .content("{\"nombre\":\"Remo responsable\",\"docenteResponsableId\":3}"))
                 .andExpect(status().isCreated())
                 .andReturn();
         long remoId = extraerLong(ID, remo.getResponse().getContentAsString());
@@ -134,11 +134,11 @@ class ServiciosAlumnoIntegracionTest {
                 .andExpect(jsonPath("$.errores.docenteResponsableId").value(containsString("ya es responsable")));
     }
 
-    private long crearDeporteConGrupo(String admin, String nombre, int dia, String inicio, String fin) throws Exception {
+    private long crearDeporteConGrupo(String admin, String nombre, int docenteId, int dia, String inicio, String fin) throws Exception {
         MvcResult deporte = mockMvc.perform(post("/api/v1/deportes")
                         .header("Authorization", "Bearer " + admin)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"" + nombre + "\"}"))
+                        .content("{\"nombre\":\"" + nombre + "\",\"docenteResponsableId\":" + docenteId + "}"))
                 .andExpect(status().isCreated())
                 .andReturn();
         long deporteId = extraerLong(ID, deporte.getResponse().getContentAsString());

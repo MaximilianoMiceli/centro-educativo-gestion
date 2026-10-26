@@ -11,11 +11,11 @@ describe('itemsPermitidos', () => {
 
   it('la dirección ve inicio, alumnos y reportes, pero no la administración', () => {
     const rutas = itemsPermitidos('DIRECCION').map((i) => i.ruta);
-    expect(rutas).toEqual(['/inicio', '/alumnos', '/reportes']);
+    expect(rutas).toEqual(['/inicio', '/alumnos', '/horarios', '/servicios', '/reportes']);
   });
 
   it('el profesor solo ve alumnos', () => {
-    expect(itemsPermitidos('PROFESOR').map((i) => i.ruta)).toEqual(['/alumnos']);
+    expect(itemsPermitidos('PROFESOR').map((i) => i.ruta)).toEqual(['/mi-agenda', '/alumnos']);
   });
 
   it('padres y alumnos solo ven su información', () => {

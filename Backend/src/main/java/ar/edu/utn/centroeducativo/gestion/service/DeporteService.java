@@ -46,6 +46,9 @@ public class DeporteService {
         } else if (deporteRepository.existsByNombreIgnoreCase(nombre)) {
             errores.put("nombre", "Ya existe un deporte con ese nombre");
         }
+        if (request.docenteResponsableId() == null) {
+            errores.put("docenteResponsableId", "Asigná un profesor responsable: todo deporte debe tener uno");
+        }
         Docente responsable = resolverDocente(request.docenteResponsableId(), errores);
         if (!errores.isEmpty()) {
             throw new ValidacionException("Hay datos inválidos en el formulario", errores);
@@ -64,6 +67,9 @@ public class DeporteService {
     public DeporteDTO asignarResponsable(Long deporteId, AsignarResponsable request) {
         Deporte deporte = buscar(deporteId);
         Map<String, String> errores = new LinkedHashMap<>();
+        if (request.docenteId() == null) {
+            errores.put("docenteResponsableId", "Todo deporte debe tener un profesor responsable");
+        }
         Docente responsable = resolverDocente(request.docenteId(), errores);
         if (responsable != null) {
             for (GrupoDeporte grupo : grupoRepository.findByDeporte_IdOrderByNivel_IdAscDiaSemanaAscHoraInicioAsc(deporteId)) {

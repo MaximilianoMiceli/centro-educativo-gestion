@@ -35,6 +35,12 @@ public class DocenteController {
     private final DocenteService docenteService;
     private final DocenteAgendaService docenteAgendaService;
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Datos de un docente")
+    public ResponseEntity<DocenteDTO> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(docenteService.obtener(id));
+    }
+
     @GetMapping("/{id}/agenda")
     @Operation(summary = "Agenda del docente",
             description = "Cursos a cargo (con nivel), materias de cada curso y sus horarios.")

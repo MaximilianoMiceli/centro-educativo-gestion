@@ -43,9 +43,12 @@ public class AsignacionController {
     }
 
     @GetMapping("/api/v1/horarios")
-    @Operation(summary = "Listar horarios de una asignación", description = "Parámetro obligatorio: dictadoId.")
-    public ResponseEntity<List<HorarioDTO>> listarHorarios(@RequestParam Long dictadoId) {
-        return ResponseEntity.ok(dictadoService.listarHorarios(dictadoId));
+    @Operation(summary = "Listar horarios",
+            description = "Filtros opcionales: dictadoId (asignación), cursoId o docenteId. Sin filtros devuelve todos.")
+    public ResponseEntity<List<HorarioDTO>> listarHorarios(@RequestParam(required = false) Long dictadoId,
+                                                           @RequestParam(required = false) Long cursoId,
+                                                           @RequestParam(required = false) Long docenteId) {
+        return ResponseEntity.ok(dictadoService.buscarHorarios(dictadoId, cursoId, docenteId));
     }
 
     @PostMapping("/api/v1/horarios")

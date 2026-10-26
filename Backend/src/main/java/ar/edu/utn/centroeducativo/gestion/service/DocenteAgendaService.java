@@ -3,10 +3,12 @@ package ar.edu.utn.centroeducativo.gestion.service;
 import ar.edu.utn.centroeducativo.gestion.domain.Curso;
 import ar.edu.utn.centroeducativo.gestion.domain.Dictado;
 import ar.edu.utn.centroeducativo.gestion.domain.Docente;
+import ar.edu.utn.centroeducativo.gestion.domain.Usuario;
 import ar.edu.utn.centroeducativo.gestion.exception.RecursoNoEncontradoException;
 import ar.edu.utn.centroeducativo.gestion.repository.DictadoRepository;
 import ar.edu.utn.centroeducativo.gestion.repository.DocenteRepository;
 import ar.edu.utn.centroeducativo.gestion.repository.HorarioRepository;
+import ar.edu.utn.centroeducativo.gestion.repository.UsuarioRepository;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteAgendaDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteAgendaDTO.CursoAgendaDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.DocenteAgendaDTO.MateriaAgendaDTO;
@@ -33,6 +35,7 @@ public class DocenteAgendaService {
     private final DocenteRepository docenteRepository;
     private final DictadoRepository dictadoRepository;
     private final HorarioRepository horarioRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Transactional(readOnly = true)
     public DocenteAgendaDTO agenda(Long docenteId) {
@@ -65,5 +68,14 @@ public class DocenteAgendaService {
                 .toList();
 
         return new DocenteAgendaDTO(docente.getId(), docente.getApellido() + ", " + docente.getNombre(), cursosAgenda);
+    }
+
+    /** Agenda del docente vinculado al usuario que consulta (pantalla "Mi agenda"). */
+    @Transactional(readOnly = true)
+    public DocenteAgendaDTO miAgenda(Long usuarioId) {
+        Docente docente = usuarioRepository.findById(usuarioId)
+                .map(Usuario::getDocente)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Tu usuario no está vinculado a un docente"));
+        return agenda(docente.getId());
     }
 }

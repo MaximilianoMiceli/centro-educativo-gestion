@@ -18,8 +18,8 @@ interface LoginProps {
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('password');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -136,16 +136,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </Button>
           </form>
 
-          {/* Info de Prueba */}
-          <Typography variant="caption" sx={{ display: 'block', color: '#999', marginTop: 2 }}>
-            <strong>Credenciales de Demo:</strong>
-          </Typography>
-          <Typography variant="caption" sx={{ display: 'block', color: '#999' }}>
-            Usuario: <strong>admin</strong> | Contraseña: <strong>password</strong>
-          </Typography>
-          <Typography variant="caption" sx={{ display: 'block', color: '#999', marginTop: 1 }}>
-            También puedes usar: <strong>profesor1</strong> / <strong>password</strong>
-          </Typography>
         </Paper>
       </Container>
     </Box>

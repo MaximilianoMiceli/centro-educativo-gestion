@@ -5,6 +5,7 @@ export const SECCIONES_DATOS = [
   'asignaciones',
   'deportes',
   'instalaciones',
+  'transporte',
 ] as const;
 
 export type SeccionDatos = (typeof SECCIONES_DATOS)[number];
@@ -24,14 +25,18 @@ const GESTION = ['ADMIN', 'DIRECCION'];
 
 export const ITEMS_MENU: ItemMenu[] = [
   { ruta: '/inicio', etiqueta: 'Inicio', grupo: '', roles: GESTION, icono: 'inicio' },
+  { ruta: '/mi-agenda', etiqueta: 'Mi agenda', grupo: '', roles: ['PROFESOR'], icono: 'agenda' },
   { ruta: '/alumnos', etiqueta: 'Alumnos', grupo: 'Personas', roles: [...GESTION, 'PROFESOR'], icono: 'alumnos' },
   { ruta: '/docentes', etiqueta: 'Docentes', grupo: 'Personas', roles: ADMIN, icono: 'docentes' },
+  { ruta: '/horarios', etiqueta: 'Horarios', grupo: 'Académico', roles: GESTION, icono: 'horarios' },
   { ruta: '/datos/niveles', etiqueta: 'Niveles', grupo: 'Académico', roles: ADMIN, icono: 'niveles' },
   { ruta: '/datos/cursos', etiqueta: 'Cursos', grupo: 'Académico', roles: ADMIN, icono: 'cursos' },
   { ruta: '/datos/materias', etiqueta: 'Materias', grupo: 'Académico', roles: ADMIN, icono: 'materias' },
   { ruta: '/datos/asignaciones', etiqueta: 'Asignaciones', grupo: 'Académico', roles: ADMIN, icono: 'asignaciones' },
+  { ruta: '/servicios', etiqueta: 'Inscripciones', grupo: 'Servicios', roles: GESTION, icono: 'inscripciones' },
   { ruta: '/datos/deportes', etiqueta: 'Deportes', grupo: 'Servicios', roles: ADMIN, icono: 'deportes' },
   { ruta: '/datos/instalaciones', etiqueta: 'Instalaciones', grupo: 'Servicios', roles: ADMIN, icono: 'instalaciones' },
+  { ruta: '/datos/transporte', etiqueta: 'Transporte', grupo: 'Servicios', roles: ADMIN, icono: 'transporte' },
   { ruta: '/reportes', etiqueta: 'Reportes', grupo: '', roles: GESTION, icono: 'reportes' },
   { ruta: '/usuarios', etiqueta: 'Usuarios', grupo: 'Administración', roles: ADMIN, icono: 'usuarios' },
   { ruta: '/permisos', etiqueta: 'Permisos', grupo: 'Administración', roles: ADMIN, icono: 'permisos' },

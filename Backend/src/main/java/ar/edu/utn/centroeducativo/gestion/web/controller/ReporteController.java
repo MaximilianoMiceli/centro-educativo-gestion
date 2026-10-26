@@ -55,6 +55,7 @@ public class ReporteController {
     public ResponseEntity<byte[]> pdf(@PathVariable String tipo, @ModelAttribute FiltrosReporte filtros) {
         TipoReporte reporte = TipoReporte.desde(tipo);
         Reporte datos = reporteService.generar(reporte, filtros);
+        reporteService.registrarExportacion(reporte, "PDF");
         return descarga(exportador.pdf(datos), MediaType.APPLICATION_PDF, reporte, "pdf");
     }
 
@@ -63,6 +64,7 @@ public class ReporteController {
     public ResponseEntity<byte[]> excel(@PathVariable String tipo, @ModelAttribute FiltrosReporte filtros) {
         TipoReporte reporte = TipoReporte.desde(tipo);
         Reporte datos = reporteService.generar(reporte, filtros);
+        reporteService.registrarExportacion(reporte, "Excel");
         return descarga(exportador.excel(datos), EXCEL, reporte, "xlsx");
     }
 

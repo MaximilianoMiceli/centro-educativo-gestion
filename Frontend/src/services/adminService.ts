@@ -77,6 +77,10 @@ class AdminService {
     await this.api.put(`/usuarios/${usuarioId}/hijos`, { alumnoIds });
   }
 
+  async cambiarActivo(id: number, activo: boolean): Promise<UsuarioLista> {
+    return (await this.api.put<UsuarioLista>(`/usuarios/${id}/activo`, { activo })).data;
+  }
+
   async restablecerPassword(id: number, password: string, debeCambiarPassword: boolean): Promise<void> {
     await this.api.put(`/usuarios/${id}/password`, { password, debeCambiarPassword });
   }

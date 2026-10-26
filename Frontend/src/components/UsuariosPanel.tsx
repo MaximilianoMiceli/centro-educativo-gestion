@@ -16,6 +16,7 @@ import {
   MenuItem,
   Paper,
   Snackbar,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -26,6 +27,8 @@ import {
   Typography,
 } from '@mui/material';
 import { adminService, ROLES, TIPOS_DOCUMENTO } from '../services/adminService';
+import { ConfirmDialog } from './ConfirmDialog';
+import { EstadoVacio } from './EstadoVacio';
 import { alumnosAdminService } from '../services/alumnosAdminService';
 import { filtrarUsuarios } from '../utils/usuarios';
 import { PaginadorTabla } from './PaginadorTabla';
@@ -64,6 +67,8 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
   const [hijosDe, setHijosDe] = useState<UsuarioLista | null>(null);
   const [alumnosTodos, setAlumnosTodos] = useState<{ id: number; legajo: string; alumno: string }[]>([]);
   const [seleccionHijos, setSeleccionHijos] = useState<number[]>([]);
+  const [pendiente, setPendiente] = useState<UsuarioLista | null>(null);
+  const [cambiando, setCambiando] = useState(false);
   const [texto, setTexto] = useState('');
   const [filtroRol, setFiltroRol] = useState<RolNombre | ''>('');
 
@@ -71,6 +76,21 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
   const paginado = usePaginacion(usuariosFiltrados);
 
   const cargar = () => adminService.listarUsuarios().then(setUsuarios);
+
+  const cambiarActivo = async (usuario: UsuarioLista, activo: boolean) => {
+    setCambiando(true);
+    setError(null);
+    try {
+      const actualizado = await adminService.cambiarActivo(usuario.id, activo);
+      setUsuarios((previos) => previos.map((u) => (u.id === actualizado.id ? actualizado : u)));
+      setAviso(activo ? `La cuenta de ${usuario.username} está activa` : `La cuenta de ${usuario.username} quedó inactiva`);
+    } catch (err: any) {
+      setError(err.response?.data?.errores?.activo ?? err.response?.data?.message ?? 'No se pudo cambiar el estado de la cuenta');
+    } finally {
+      setCambiando(false);
+      setPendiente(null);
+    }
+  };
 
   const abrirHijos = async (usuario: UsuarioLista) => {
     setHijosDe(usuario);
@@ -286,13 +306,14 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
               <TableCell>Rol</TableCell>
               <TableCell>Documento</TableCell>
               <TableCell>Contraseña</TableCell>
+              <TableCell>Cuenta</TableCell>
               <TableCell align="right">Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {usuariosFiltrados.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center">Ningún usuario coincide con la búsqueda</TableCell>
+                <TableCell colSpan={6}><EstadoVacio titulo="Ningún usuario coincide con la búsqueda" descripcion="Probá con otro texto o quitá el filtro de rol." /></TableCell>
               </TableRow>
             )}
             {paginado.visibles.map((u) => (
@@ -304,6 +325,20 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
                   {u.debeCambiarPassword
                     ? <Chip size="small" color="warning" variant="outlined" label="Debe cambiarla" />
                     : <Chip size="small" color="success" variant="outlined" label="Vigente" />}
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Switch
+                      size="small"
+                      checked={u.activo}
+                      disabled={cambiando}
+                      onChange={(e) => (e.target.checked ? cambiarActivo(u, true) : setPendiente(u))}
+                      slotProps={{ input: { 'aria-label': `Cuenta activa de ${u.username}` } as React.InputHTMLAttributes<HTMLInputElement> }}
+                    />
+                    <Typography variant="caption" sx={{ color: u.activo ? '#2e7d32' : '#666' }}>
+                      {u.activo ? 'Activa' : 'Inactiva'}
+                    </Typography>
+                  </Box>
                 </TableCell>
                 <TableCell align="right">
                   {u.rol === 'PADRE' && (
@@ -324,6 +359,16 @@ export const UsuariosPanel: React.FC<UsuariosPanelProps> = ({ token }) => {
         onPorPaginaChange={paginado.cambiarPorPagina}
       />
 
+      <ConfirmDialog
+        abierto={!!pendiente}
+        titulo={`Desactivar la cuenta de ${pendiente?.username ?? ''}`}
+        mensaje="La persona no podrá ingresar al sistema hasta que reactives la cuenta. Sus datos no se borran."
+        textoConfirmar="Desactivar"
+        peligro
+        cargando={cambiando}
+        onConfirmar={() => pendiente && cambiarActivo(pendiente, false)}
+        onCancelar={() => setPendiente(null)}
+      />
       <Dialog open={!!restablecer} onClose={() => setRestablecer(null)} fullWidth maxWidth="xs">
         <DialogTitle>Restablecer contraseña de {restablecer?.username}</DialogTitle>
         <DialogContent>

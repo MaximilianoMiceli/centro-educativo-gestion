@@ -1,5 +1,6 @@
 import { GRADIENTE_PRINCIPAL } from '../institucion';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -21,6 +22,8 @@ import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
 import { docenteService } from '../services/docenteService';
 import type { DocenteDTO } from '../services/docenteService';
 import { DocenteDialog } from './DocenteDialog';
+import { EstadoVacio } from './EstadoVacio';
+import { FilasCargando } from './FilasCargando';
 import { PaginadorTabla } from './PaginadorTabla';
 import { usePaginacion } from '../utils/usePaginacion';
 
@@ -35,6 +38,7 @@ const COLORES_ESTADO: Record<DocenteDTO['estado'], 'success' | 'default' | 'warn
 };
 
 export const DocentesPanel: React.FC<DocentesPanelProps> = ({ token }) => {
+  const navigate = useNavigate();
   const [docentes, setDocentes] = useState<DocenteDTO[]>([]);
   const [texto, setTexto] = useState('');
   const [cargando, setCargando] = useState(true);
@@ -121,11 +125,12 @@ export const DocentesPanel: React.FC<DocentesPanelProps> = ({ token }) => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {cargando && docentes.length === 0 && <FilasCargando columnas={5} />}
             {paginado.visibles.map((d) => (
               <TableRow
                 key={d.id}
                 hover
-                onClick={() => setDialogo({ abierto: true, docente: d })}
+                onClick={() => navigate(`/docentes/${d.id}`)}
                 sx={{ cursor: 'pointer' }}
               >
                 <TableCell>{d.legajo}</TableCell>
@@ -139,8 +144,11 @@ export const DocentesPanel: React.FC<DocentesPanelProps> = ({ token }) => {
             ))}
             {!cargando && filtrados.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} sx={{ textAlign: 'center', color: '#666', py: 4 }}>
-                  No hay docentes para la búsqueda.
+                <TableCell colSpan={5}>
+                  <EstadoVacio
+                    titulo="No hay docentes con esa búsqueda"
+                    descripcion="Probá con otro nombre, legajo o DNI."
+                  />
                 </TableCell>
               </TableRow>
             )}

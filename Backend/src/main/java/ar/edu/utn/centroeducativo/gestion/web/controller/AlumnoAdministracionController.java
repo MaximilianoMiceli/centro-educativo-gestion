@@ -52,6 +52,12 @@ public class AlumnoAdministracionController {
         return ResponseEntity.ok(alumnoAdministracionService.modificar(id, request));
     }
 
+    @GetMapping("/{id}/ficha")
+    @Operation(summary = "Ficha completa del alumno")
+    public ResponseEntity<AlumnoFichaDTO> ficha(@PathVariable Long id) {
+        return ResponseEntity.ok(alumnoAdministracionService.ficha(id));
+    }
+
     @GetMapping("/{id}/materias")
     @Operation(summary = "Materias cursadas por el alumno", description = "Materias de su curso, con docente y horarios.")
     public ResponseEntity<List<AlumnoMateriaDTO>> materias(@PathVariable Long id) {

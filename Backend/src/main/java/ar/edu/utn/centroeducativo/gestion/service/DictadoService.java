@@ -95,6 +95,19 @@ public class DictadoService {
                 .toList();
     }
 
+    /** Horarios filtrables por asignación, curso o docente. Sin filtros devuelve todos. */
+    @Transactional(readOnly = true)
+    public List<HorarioDTO> buscarHorarios(Long dictadoId, Long cursoId, Long docenteId) {
+        return horarioRepository.findAll().stream()
+                .filter(h -> dictadoId == null || h.getDictado().getId().equals(dictadoId))
+                .filter(h -> cursoId == null || h.getDictado().getCurso().getId().equals(cursoId))
+                .filter(h -> docenteId == null || h.getDictado().getDocente().getId().equals(docenteId))
+                .sorted(java.util.Comparator.comparing(Horario::getDiaSemana)
+                        .thenComparing(Horario::getHoraInicio))
+                .map(this::toDTO)
+                .toList();
+    }
+
     @Transactional
     public HorarioDTO crearHorario(CrearHorarioRequest request) {
         Dictado dictado = request.dictadoId() == null ? null

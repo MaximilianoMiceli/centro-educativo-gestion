@@ -51,6 +51,10 @@ class AlumnosAdminService {
     this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
+  async ficha(id: number): Promise<AlumnoFicha> {
+    return (await this.api.get<AlumnoFicha>(`/alumnos/${id}/ficha`)).data;
+  }
+
   async listar(filtros: { busqueda?: string; nivelId?: number; cursoId?: number } = {}): Promise<AlumnoFicha[]> {
     const params: Record<string, string | number> = {};
     if (filtros.busqueda) params.busqueda = filtros.busqueda;

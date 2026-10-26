@@ -54,14 +54,14 @@ class ReporteApiTest {
     }
 
     @Test
-    void fichaDelAlumnoTieneCuatroSecciones() throws Exception {
+    void fichaDelAlumnoTieneSeisSecciones() throws Exception {
         String admin = login("admin");
 
         mockMvc.perform(get("/api/v1/reportes/alumno-ficha")
                         .param("alumnoId", "1")
                         .header("Authorization", "Bearer " + admin))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.secciones.length()").value(4))
+                .andExpect(jsonPath("$.secciones.length()").value(6))
                 .andExpect(jsonPath("$.secciones[0].filas[0][1]").value("ALU001"))
                 .andExpect(jsonPath("$.filtros[0]").value(org.hamcrest.Matchers.containsString("ALU001")));
     }

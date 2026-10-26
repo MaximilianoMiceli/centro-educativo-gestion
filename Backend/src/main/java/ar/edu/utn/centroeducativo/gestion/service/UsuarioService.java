@@ -9,6 +9,7 @@ import ar.edu.utn.centroeducativo.gestion.repository.DocenteRepository;
 import ar.edu.utn.centroeducativo.gestion.repository.PadreRepository;
 import ar.edu.utn.centroeducativo.gestion.repository.RolRepository;
 import ar.edu.utn.centroeducativo.gestion.repository.UsuarioRepository;
+import ar.edu.utn.centroeducativo.gestion.security.UsuarioActual;
 import ar.edu.utn.centroeducativo.gestion.web.dto.CrearUsuarioRequest;
 import ar.edu.utn.centroeducativo.gestion.web.dto.RestablecerPasswordRequest;
 import ar.edu.utn.centroeducativo.gestion.web.dto.UsuarioCreadoDTO;
@@ -44,6 +45,7 @@ public class UsuarioService {
     private final PadreRepository padreRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuditoriaService auditoriaService;
+    private final UsuarioActual usuarioActual;
 
     @Transactional(readOnly = true)
     public List<UsuarioListaDTO> listar() {
@@ -120,6 +122,43 @@ public class UsuarioService {
 
         auditoriaService.registrar("RESTABLECER_PASSWORD", "USUARIO", usuario.getId(),
                 "Contraseña restablecida por un administrador para " + usuario.getUsername());
+    }
+
+    /**
+     * Activa o desactiva una cuenta. Nadie se desactiva a sí mismo y siempre queda al menos un administrador activo.
+     * Un usuario desactivado no puede ingresar (AuthService).
+     */
+    @Transactional
+    public UsuarioListaDTO cambiarActivo(Long usuarioId, boolean activo) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario " + usuarioId + " no encontrado"));
+        if (usuario.isActivo() == activo) {
+            return toLista(usuario);
+        }
+
+        if (!activo) {
+            Map<String, String> errores = new LinkedHashMap<>();
+            if (usuarioId.equals(usuarioActual.id().orElse(null))) {
+                errores.put("activo", "No podés desactivar tu propia cuenta");
+            } else if ("ADMIN".equals(usuario.getRol().getNombre())
+                    && usuarioRepository.countByRol_NombreAndActivoTrue("ADMIN") <= 1) {
+                errores.put("activo", "Debe quedar al menos un administrador activo");
+            }
+            if (!errores.isEmpty()) {
+                throw new ValidacionException("No se pudo desactivar la cuenta", errores);
+            }
+        }
+
+        usuario.setActivo(activo);
+        usuarioRepository.save(usuario);
+        auditoriaService.registrar(activo ? "ACTIVACION" : "DESACTIVACION", "USUARIO", usuarioId,
+                "Cuenta " + usuario.getUsername() + (activo ? " activada" : " desactivada"));
+        return toLista(usuario);
+    }
+
+    private static UsuarioListaDTO toLista(Usuario u) {
+        return new UsuarioListaDTO(u.getId(), u.getUsername(), u.getEmail(), u.getRol().getNombre(),
+                u.getNumeroDocumento(), u.isActivo(), u.isDebeCambiarPassword());
     }
 
     private static void validarPassword(String password, Map<String, String> errores, String campo) {

@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RecorridoTransporteRepository extends JpaRepository<RecorridoTransporte, Short> {
 
     List<RecorridoTransporte> findAllByOrderByIdAsc();
+
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Short id);
 }

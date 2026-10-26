@@ -79,4 +79,15 @@ public class UsuarioController {
         usuarioService.restablecerPassword(id, request);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/activo")
+    @Operation(summary = "Activar o desactivar una cuenta",
+            description = "Un usuario desactivado no puede ingresar. No se puede desactivar la propia cuenta ni al último administrador activo.")
+    public ResponseEntity<UsuarioListaDTO> cambiarActivo(@PathVariable Long id,
+                                                         @RequestBody CambiarActivoRequest request) {
+        return ResponseEntity.ok(usuarioService.cambiarActivo(id, request.activo()));
+    }
+
+    public record CambiarActivoRequest(boolean activo) {
+    }
 }

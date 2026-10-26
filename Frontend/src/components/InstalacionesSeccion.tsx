@@ -33,6 +33,8 @@ import type {
   TipoInstalacion,
 } from '../services/instalacionesService';
 import { PaginadorTabla } from './PaginadorTabla';
+import { EstadoVacio } from './EstadoVacio';
+import { FilasCargando } from './FilasCargando';
 import { usePaginacion } from '../utils/usePaginacion';
 
 interface InstalacionesSeccionProps {
@@ -75,6 +77,7 @@ export const InstalacionesSeccion: React.FC<InstalacionesSeccionProps> = ({ onAv
   const [form, setForm] = useState<Formulario>(FORMULARIO_VACIO);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
+  const [cargandoLista, setCargandoLista] = useState(true);
   const paginado = usePaginacion(instalaciones);
 
   const cargar = () => instalacionesService.listar().then(setInstalaciones);
@@ -83,7 +86,8 @@ export const InstalacionesSeccion: React.FC<InstalacionesSeccionProps> = ({ onAv
     instalacionesService
       .listar()
       .then(setInstalaciones)
-      .catch(() => onAviso({ tipo: 'error', texto: 'No se pudieron cargar las instalaciones' }));
+      .catch(() => onAviso({ tipo: 'error', texto: 'No se pudieron cargar las instalaciones' }))
+      .finally(() => setCargandoLista(false));
   }, [onAviso]);
 
   const abrir = (instalacion: InstalacionDTO | null) => {
@@ -169,6 +173,18 @@ export const InstalacionesSeccion: React.FC<InstalacionesSeccionProps> = ({ onAv
             </TableRow>
           </TableHead>
           <TableBody>
+            {cargandoLista && <FilasCargando columnas={5} />}
+            {!cargandoLista && instalaciones.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5}>
+                  <EstadoVacio
+                    titulo="Todavía no hay instalaciones"
+                    descripcion="Cargá la pileta, las canchas, los laboratorios o el comedor para que aparezcan acá."
+                    accion={<Button variant="contained" onClick={() => abrir(null)}>Nueva instalación</Button>}
+                  />
+                </TableCell>
+              </TableRow>
+            )}
             {paginado.visibles.map((i) => (
               <TableRow key={i.id} hover onClick={() => abrir(i)} sx={{ cursor: 'pointer' }}>
                 <TableCell>{i.nombre}</TableCell>

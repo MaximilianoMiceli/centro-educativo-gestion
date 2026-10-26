@@ -21,6 +21,7 @@ import ar.edu.utn.centroeducativo.gestion.repository.NivelRepository;
 import ar.edu.utn.centroeducativo.gestion.repository.RecorridoTransporteRepository;
 import ar.edu.utn.centroeducativo.gestion.service.AlumnoAdministracionService;
 import ar.edu.utn.centroeducativo.gestion.service.AlumnoServiciosService;
+import ar.edu.utn.centroeducativo.gestion.service.AuditoriaService;
 import ar.edu.utn.centroeducativo.gestion.service.FormatoHorario;
 import ar.edu.utn.centroeducativo.gestion.web.dto.AlumnoFichaDTO;
 import ar.edu.utn.centroeducativo.gestion.web.dto.AlumnoMateriaDTO;
@@ -60,6 +61,7 @@ public class ReporteService {
     private final NivelRepository nivelRepository;
     private final CursoRepository cursoRepository;
     private final MateriaRepository materiaRepository;
+    private final AuditoriaService auditoriaService;
 
     @Transactional(readOnly = true)
     public Reporte generar(TipoReporte tipo, FiltrosReporte filtros) {
@@ -75,6 +77,13 @@ public class ReporteService {
             case ALUMNOS_TRANSPORTE -> alumnosTransporte(filtros);
         };
         return new Reporte(tipo.codigo(), tipo.titulo(), filtrosAplicados(filtros), secciones);
+    }
+
+    /** Toda exportación a PDF o Excel queda registrada en la auditoría (RNF-SEG-004). */
+    @Transactional
+    public void registrarExportacion(TipoReporte tipo, String formato) {
+        auditoriaService.registrar("EXPORTACION", "REPORTE", null,
+                tipo.codigo() + " " + tipo.titulo() + " (" + formato + ")");
     }
 
     private static void validar(TipoReporte tipo, FiltrosReporte filtros) {
@@ -117,7 +126,14 @@ public class ReporteService {
                 new Seccion("Transporte y comedor", List.of("Servicio", "Detalle"), List.of(
                         List.of("Transporte", servicios.transporte() == null ? "No inscripto"
                                 : servicios.transporte().nombre()),
-                        List.of("Comedor", servicios.comedor() ? "Inscripto" : "No inscripto"))));
+                        List.of("Comedor", servicios.comedor() ? "Inscripto" : "No inscripto"))),
+                new Seccion("Idiomas", List.of("Idioma", "Desde"), servicios.idiomas().stream()
+                        .map(i -> List.of(nz(i.idioma()), i.fechaInscripcion().format(FECHA)))
+                        .toList()),
+                new Seccion("Apoyo estudiantil", List.of("Estado", "Observaciones"), servicios.apoyo() == null
+                        ? List.of(List.of("No inscripto", SIN_DATO))
+                        : List.of(List.of("Inscripto desde " + servicios.apoyo().fechaInicio().format(FECHA),
+                                nz(servicios.apoyo().observaciones())))));
     }
 
     private List<Seccion> docenteCursos(FiltrosReporte filtros) {

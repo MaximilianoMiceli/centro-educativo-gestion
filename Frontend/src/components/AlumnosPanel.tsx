@@ -1,5 +1,6 @@
 import { GRADIENTE_PRINCIPAL } from '../institucion';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -25,6 +26,8 @@ import { datosMaestrosService } from '../services/datosMaestrosService';
 import type { CursoDTO, NivelDTO } from '../services/datosMaestrosService';
 import { rolDelToken } from '../utils/token';
 import { AlumnoDialog } from './AlumnoDialog';
+import { EstadoVacio } from './EstadoVacio';
+import { FilasCargando } from './FilasCargando';
 import { PaginadorTabla } from './PaginadorTabla';
 import { usePaginacion } from '../utils/usePaginacion';
 
@@ -39,6 +42,7 @@ const COLORES_ESTADO: Record<AlumnoFicha['estado'], 'success' | 'default' | 'inf
 };
 
 export const AlumnosPanel: React.FC<AlumnosPanelProps> = ({ token }) => {
+  const navigate = useNavigate();
   const esAdmin = rolDelToken(token) === 'ADMIN';
   const [niveles, setNiveles] = useState<NivelDTO[]>([]);
   const [cursos, setCursos] = useState<CursoDTO[]>([]);
@@ -155,11 +159,12 @@ export const AlumnosPanel: React.FC<AlumnosPanelProps> = ({ token }) => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {cargando && alumnos.length === 0 && <FilasCargando columnas={5} />}
             {paginado.visibles.map((a) => (
               <TableRow
                 key={a.id}
                 hover
-                onClick={() => setDialogo({ abierto: true, alumno: a })}
+                onClick={() => navigate(`/alumnos/${a.id}`)}
                 sx={{ cursor: 'pointer' }}
               >
                 <TableCell>{a.legajo}</TableCell>
@@ -173,8 +178,11 @@ export const AlumnosPanel: React.FC<AlumnosPanelProps> = ({ token }) => {
             ))}
             {!cargando && alumnos.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} sx={{ textAlign: 'center', color: '#666', py: 4 }}>
-                  No hay alumnos para los filtros seleccionados.
+                <TableCell colSpan={5}>
+                  <EstadoVacio
+                    titulo="No hay alumnos con esos filtros"
+                    descripcion="Probá con otro nombre, legajo o DNI, o quitá el filtro de nivel o curso."
+                  />
                 </TableCell>
               </TableRow>
             )}

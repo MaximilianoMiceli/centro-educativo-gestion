@@ -28,6 +28,31 @@ export interface InscripcionDeporte {
   horario: string;
 }
 
+export interface Idioma {
+  id: number;
+  nombre: string;
+}
+
+export interface IdiomaInscripto {
+  id: number;
+  idiomaId: number;
+  idioma: string;
+  fechaInscripcion: string;
+}
+
+export interface ApoyoEstudiantil {
+  fechaInicio: string;
+  observaciones: string | null;
+}
+
+export interface AtencionEnfermeria {
+  id: number;
+  fechaHora: string;
+  motivo: string;
+  observaciones: string | null;
+  registradoPor: string | null;
+}
+
 export interface ServiciosAlumno {
   alumnoId: number;
   alumno: string;
@@ -35,6 +60,8 @@ export interface ServiciosAlumno {
   deportes: InscripcionDeporte[];
   transporte: Recorrido | null;
   comedor: boolean;
+  idiomas: IdiomaInscripto[];
+  apoyo: ApoyoEstudiantil | null;
 }
 
 export interface DatosGrupo {
@@ -100,6 +127,38 @@ class ServiciosService {
 
   async asignarComedor(alumnoId: number, inscripto: boolean): Promise<ServiciosAlumno> {
     return (await this.api.put<ServiciosAlumno>(`/alumnos/${alumnoId}/comedor`, { inscripto })).data;
+  }
+
+  async listarIdiomas(): Promise<Idioma[]> {
+    return (await this.api.get<Idioma[]>('/idiomas')).data;
+  }
+
+  async inscribirIdioma(alumnoId: number, idiomaId: number): Promise<ServiciosAlumno> {
+    return (await this.api.post<ServiciosAlumno>(`/alumnos/${alumnoId}/idiomas`, { idiomaId })).data;
+  }
+
+  async quitarIdioma(alumnoId: number, inscripcionId: number): Promise<ServiciosAlumno> {
+    return (await this.api.delete<ServiciosAlumno>(`/alumnos/${alumnoId}/idiomas/${inscripcionId}`)).data;
+  }
+
+  async asignarApoyo(alumnoId: number, observaciones: string): Promise<ServiciosAlumno> {
+    return (await this.api.put<ServiciosAlumno>(`/alumnos/${alumnoId}/apoyo`, { observaciones })).data;
+  }
+
+  async quitarApoyo(alumnoId: number): Promise<ServiciosAlumno> {
+    return (await this.api.delete<ServiciosAlumno>(`/alumnos/${alumnoId}/apoyo`)).data;
+  }
+
+  async atencionesEnfermeria(alumnoId: number): Promise<AtencionEnfermeria[]> {
+    return (await this.api.get<AtencionEnfermeria[]>(`/alumnos/${alumnoId}/enfermeria`)).data;
+  }
+
+  async registrarAtencion(alumnoId: number, motivo: string, observaciones: string): Promise<AtencionEnfermeria> {
+    return (await this.api.post<AtencionEnfermeria>(`/alumnos/${alumnoId}/enfermeria`, { motivo, observaciones })).data;
+  }
+
+  async renombrarRecorrido(recorridoId: number, nombre: string): Promise<Recorrido> {
+    return (await this.api.put<Recorrido>(`/recorridos/${recorridoId}`, { nombre })).data;
   }
 }
 

@@ -21,11 +21,15 @@ import {
 } from '@mui/material';
 import {
   AdminPanelSettings,
+  CalendarMonth,
+  Favorite,
   Apartment,
   Assessment,
   Assignment,
   Badge,
   Class,
+  Schedule,
+  DirectionsBus,
   FamilyRestroom,
   Groups,
   Home,
@@ -54,6 +58,9 @@ const ANCHO_MENU = 250;
 
 const ICONOS: Record<string, React.ReactNode> = {
   inicio: <Home fontSize="small" />,
+  agenda: <CalendarMonth fontSize="small" />,
+  horarios: <Schedule fontSize="small" />,
+  inscripciones: <Favorite fontSize="small" />,
   alumnos: <Groups fontSize="small" />,
   docentes: <Badge fontSize="small" />,
   niveles: <Layers fontSize="small" />,
@@ -62,6 +69,7 @@ const ICONOS: Record<string, React.ReactNode> = {
   asignaciones: <Assignment fontSize="small" />,
   deportes: <Sports fontSize="small" />,
   instalaciones: <Apartment fontSize="small" />,
+  transporte: <DirectionsBus fontSize="small" />,
   reportes: <Assessment fontSize="small" />,
   usuarios: <ManageAccounts fontSize="small" />,
   permisos: <AdminPanelSettings fontSize="small" />,

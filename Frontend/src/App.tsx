@@ -13,6 +13,11 @@ import { PermisosRoles } from './components/PermisosRoles';
 import { DatosMaestros } from './components/DatosMaestros';
 import { ReportesPanel } from './components/ReportesPanel';
 import { MiInformacion } from './components/MiInformacion';
+import { AlumnoFichaPagina } from './pages/AlumnoFichaPagina';
+import { DocenteFichaPagina } from './pages/DocenteFichaPagina';
+import { HorariosPagina } from './pages/HorariosPagina';
+import { MiAgendaPagina } from './pages/MiAgendaPagina';
+import { ServiciosPagina } from './pages/ServiciosPagina';
 import { debeCambiarPasswordDelToken, rolDelToken } from './utils/token';
 import { esSeccionDatos, puedeVer, rutaInicial } from './utils/navegacion';
 import { PALETA } from './institucion';
@@ -60,6 +65,11 @@ function AreaAutenticada({
         <Route index element={<Navigate to={rutaInicial(rol)} replace />} />
         {puede('/inicio') && <Route path="inicio" element={<Inicio token={token} />} />}
         {puede('/alumnos') && <Route path="alumnos" element={<AlumnosPanel token={token} />} />}
+        {puede('/alumnos') && <Route path="alumnos/:id" element={<AlumnoFichaPagina token={token} />} />}
+        {puede('/docentes') && <Route path="docentes/:id" element={<DocenteFichaPagina token={token} />} />}
+        {puede('/horarios') && <Route path="horarios" element={<HorariosPagina token={token} />} />}
+        {puede('/mi-agenda') && <Route path="mi-agenda" element={<MiAgendaPagina token={token} />} />}
+        {puede('/servicios') && <Route path="servicios" element={<ServiciosPagina token={token} />} />}
         {puede('/docentes') && <Route path="docentes" element={<DocentesPanel token={token} />} />}
         {puede('/reportes') && <Route path="reportes" element={<ReportesPanel token={token} />} />}
         {puede('/usuarios') && <Route path="usuarios" element={<UsuariosPanel token={token} />} />}

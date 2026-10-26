@@ -145,19 +145,26 @@ export const DeportesSeccion: React.FC<DeportesSeccionProps> = ({ onAviso }) => 
             />
             <TextField
               select
-              label="Responsable (opcional)"
+              label="Responsable"
+              required
               value={responsableNuevo}
               onChange={(e) => setResponsableNuevo(e.target.value)}
               error={!!errores.docenteResponsableId}
-              helperText={errores.docenteResponsableId ?? ' '}
+              helperText={errores.docenteResponsableId ?? 'Todo deporte tiene un profesor responsable'}
               size="small"
             >
-              <MenuItem value="">Sin asignar</MenuItem>
               {docentes.map((d) => (
                 <MenuItem key={d.id} value={String(d.id)}>{d.apellido}, {d.nombre}</MenuItem>
               ))}
             </TextField>
-            <Button variant="contained" onClick={crear} disabled={!nombre.trim()} sx={{ mt: 0.5 }}>Crear</Button>
+            <Button
+              variant="contained"
+              onClick={crear}
+              disabled={!nombre.trim() || !responsableNuevo}
+              sx={{ mt: 0.5 }}
+            >
+              Crear
+            </Button>
           </Box>
         </CardContent>
       </Card>
@@ -171,17 +178,19 @@ export const DeportesSeccion: React.FC<DeportesSeccionProps> = ({ onAviso }) => 
               <TextField
                 select
                 label="Profesor responsable"
+                required
                 value={responsableSel}
                 onChange={(e) => setResponsableSel(e.target.value)}
                 size="small"
                 sx={{ minWidth: 280 }}
               >
-                <MenuItem value="">Sin asignar</MenuItem>
                 {docentes.map((d) => (
                   <MenuItem key={d.id} value={String(d.id)}>{d.apellido}, {d.nombre}</MenuItem>
                 ))}
               </TextField>
-              <Button variant="outlined" onClick={guardarResponsable}>Guardar responsable</Button>
+              <Button variant="outlined" onClick={guardarResponsable} disabled={!responsableSel}>
+                Guardar responsable
+              </Button>
             </Box>
 
             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Grupos</Typography>
