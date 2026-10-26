@@ -1,34 +1,48 @@
 import React, { useState } from 'react';
+import { Link as RouterLink, Outlet, useLocation } from 'react-router-dom';
 import {
-  Box,
+  Alert,
   AppBar,
-  Toolbar,
-  Typography,
+  Box,
   Button,
-  Container,
-  Card,
-  CardContent,
-  Avatar,
-  Tab,
-  Tabs,
   Dialog,
   DialogContent,
   DialogTitle,
+  Drawer,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
   Snackbar,
-  Alert,
+  Toolbar,
+  Typography,
 } from '@mui/material';
-import { Logout as LogOutIcon, VpnKey as VpnKeyIcon } from '@mui/icons-material';
-import { AlumnosPanel } from '../components/AlumnosPanel';
-import { MiInformacion } from '../components/MiInformacion';
-import { DocentesPanel } from '../components/DocentesPanel';
-import { UsuariosPanel } from '../components/UsuariosPanel';
-import { PermisosRoles } from '../components/PermisosRoles';
-import { DatosMaestros } from '../components/DatosMaestros';
-import { ReportesPanel } from '../components/ReportesPanel';
+import {
+  AdminPanelSettings,
+  Apartment,
+  Assessment,
+  Assignment,
+  Badge,
+  Class,
+  FamilyRestroom,
+  Groups,
+  Home,
+  Layers,
+  Logout as LogOutIcon,
+  ManageAccounts,
+  Menu as MenuIcon,
+  Sports,
+  Subject,
+  VpnKey as VpnKeyIcon,
+} from '@mui/icons-material';
 import { LogoInstitucional } from '../components/LogoInstitucional';
 import { FormularioCambioPassword } from '../components/CambiarPassword';
 import { rolDelToken } from '../utils/token';
 import { INSTITUCION } from '../institucion';
+import { agruparMenu, itemsPermitidos } from '../utils/navegacion';
+import type { ItemMenu } from '../utils/navegacion';
 
 interface DashboardProps {
   token: string;
@@ -36,17 +50,30 @@ interface DashboardProps {
   onTokenActualizado: (nuevoToken: string) => void;
 }
 
-type Pestana = 'alumnos' | 'docentes' | 'usuarios' | 'permisos' | 'datos' | 'reportes';
+const ANCHO_MENU = 250;
+
+const ICONOS: Record<string, React.ReactNode> = {
+  inicio: <Home fontSize="small" />,
+  alumnos: <Groups fontSize="small" />,
+  docentes: <Badge fontSize="small" />,
+  niveles: <Layers fontSize="small" />,
+  cursos: <Class fontSize="small" />,
+  materias: <Subject fontSize="small" />,
+  asignaciones: <Assignment fontSize="small" />,
+  deportes: <Sports fontSize="small" />,
+  instalaciones: <Apartment fontSize="small" />,
+  reportes: <Assessment fontSize="small" />,
+  usuarios: <ManageAccounts fontSize="small" />,
+  permisos: <AdminPanelSettings fontSize="small" />,
+  familia: <FamilyRestroom fontSize="small" />,
+};
 
 export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenActualizado }) => {
-  const [pestana, setPestana] = useState<Pestana>('alumnos');
   const [cambioAbierto, setCambioAbierto] = useState(false);
   const [avisoCambio, setAvisoCambio] = useState(false);
-  const rol = rolDelToken(token);
-  const esAdmin = rol === 'ADMIN';
-  const puedeReportes = rol === 'ADMIN' || rol === 'DIRECCION';
-  const esFamilia = ['PADRE', 'ALUMNO'].includes(rol ?? '');
-  const mostrarPestanas = esAdmin || puedeReportes;
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const { pathname } = useLocation();
+  const grupos = agruparMenu(itemsPermitidos(rolDelToken(token)));
 
   const alCambiarPassword = (nuevoToken: string) => {
     onTokenActualizado(nuevoToken);
@@ -54,132 +81,147 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenAc
     setAvisoCambio(true);
   };
 
+  const elementoMenu = (item: ItemMenu) => {
+    const activo = pathname === item.ruta || pathname.startsWith(`${item.ruta}/`);
+    return (
+      <ListItemButton
+        key={item.ruta}
+        component={RouterLink}
+        to={item.ruta}
+        selected={activo}
+        onClick={() => setMenuAbierto(false)}
+        sx={{ borderRadius: 2, mx: 1, mb: 0.5, '&.Mui-selected': { backgroundColor: '#e8f0fb', color: '#134a84' } }}
+      >
+        <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}>{ICONOS[item.icono]}</ListItemIcon>
+        <ListItemText primary={item.etiqueta} slotProps={{ primary: { sx: { fontSize: 14, fontWeight: activo ? 700 : 500 } } }} />
+      </ListItemButton>
+    );
+  };
+
+  const menu = (
+    <Box sx={{ width: ANCHO_MENU, pt: 2 }}>
+      {grupos.map((grupo) => (
+        <List
+          key={grupo.titulo || 'general'}
+          dense
+          subheader={
+            grupo.titulo ? (
+              <ListSubheader sx={{ backgroundColor: 'transparent', lineHeight: '32px', fontWeight: 700, color: '#667' }}>
+                {grupo.titulo}
+              </ListSubheader>
+            ) : undefined
+          }
+        >
+          {grupo.items.map(elementoMenu)}
+        </List>
+      ))}
+    </Box>
+  );
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
-      {/* AppBar */}
-      <AppBar
-        position="sticky"
+    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F5F7FB' }}>
+      {/* Menú fijo en escritorio */}
+      <Box
+        component="aside"
         sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          display: { xs: 'none', md: 'block' },
+          width: ANCHO_MENU,
+          flexShrink: 0,
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          overflowY: 'auto',
+          backgroundColor: '#fff',
+          borderRight: '1px solid #e4ecf4',
         }}
       >
-        <Toolbar>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, mr: 1.5, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.95)' }}>
-            <LogoInstitucional size={32} />
-          </Box>
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-              {INSTITUCION.nombre}
-            </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.85 }}>
-              Sistema de Gestión
-            </Typography>
-          </Box>
-          <Button
-            color="inherit"
-            startIcon={<VpnKeyIcon />}
-            onClick={() => setCambioAbierto(true)}
-            sx={{ fontWeight: 600, mr: 1, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}
-          >
-            Mi contraseña
-          </Button>
-          <Button
-            color="inherit"
-            startIcon={<LogOutIcon />}
-            onClick={onLogout}
-            sx={{
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: 'rgba(255,255,255,0.1)',
-              },
-            }}
-          >
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
+        {menu}
+      </Box>
 
-      <Dialog open={cambioAbierto} onClose={() => setCambioAbierto(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Cambiar mi contraseña</DialogTitle>
-        <DialogContent>
-          <FormularioCambioPassword
-            token={token}
-            onCambiado={alCambiarPassword}
-            onCancelar={() => setCambioAbierto(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Menú deslizable en celular */}
+      <Drawer open={menuAbierto} onClose={() => setMenuAbierto(false)} sx={{ display: { md: 'none' } }}>
+        {menu}
+      </Drawer>
 
-      <Snackbar
-        open={avisoCambio}
-        autoHideDuration={4000}
-        onClose={() => setAvisoCambio(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity="success" variant="filled" onClose={() => setAvisoCambio(false)}>
-          Contraseña actualizada
-        </Alert>
-      </Snackbar>
-
-      {/* Contenido Principal */}
-      <Container maxWidth="md" sx={{ flex: 1, paddingY: 4 }}>
-        {/* Tarjeta de Bienvenida */}
-        <Card sx={{ marginBottom: 4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box>
-                <Avatar
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    fontSize: '1.8rem',
-                  }}
-                >
-                  👨‍🎓
-                </Avatar>
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  Bienvenido al Sistema
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#666', marginTop: 0.5 }}>
-                  Busca y consulta información de alumnos de forma rápida y segura.
-                </Typography>
-              </Box>
+      <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <AppBar
+          position="sticky"
+          sx={{
+            background: 'linear-gradient(135deg, #1a5fa8 0%, #134a84 100%)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              onClick={() => setMenuAbierto(true)}
+              aria-label="Abrir menú"
+              sx={{ mr: 1, display: { md: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, mr: 1.5, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.95)' }}>
+              <LogoInstitucional size={28} />
             </Box>
-          </CardContent>
-        </Card>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                {INSTITUCION.nombre}
+              </Typography>
+              <Typography variant="caption" sx={{ opacity: 0.85 }}>
+                Sistema de Gestión
+              </Typography>
+            </Box>
+            <Button
+              color="inherit"
+              startIcon={<VpnKeyIcon />}
+              onClick={() => setCambioAbierto(true)}
+              sx={{ fontWeight: 600, mr: 1, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}
+            >
+              Mi contraseña
+            </Button>
+            <Button
+              color="inherit"
+              startIcon={<LogOutIcon />}
+              onClick={onLogout}
+              sx={{ fontWeight: 600, '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}
+            >
+              Salir
+            </Button>
+          </Toolbar>
+        </AppBar>
 
-        {mostrarPestanas && (
-          <Tabs value={pestana} onChange={(_e, nueva: Pestana) => setPestana(nueva)} centered sx={{ mb: 3 }}>
-            <Tab value="alumnos" label="Alumnos" />
-            {esAdmin && <Tab value="docentes" label="Docentes" />}
-            {esAdmin && <Tab value="usuarios" label="Usuarios" />}
-            {esAdmin && <Tab value="permisos" label="Permisos" />}
-            {esAdmin && <Tab value="datos" label="Datos" />}
-            {puedeReportes && <Tab value="reportes" label="Reportes" />}
-          </Tabs>
-        )}
+        <Dialog open={cambioAbierto} onClose={() => setCambioAbierto(false)} fullWidth maxWidth="xs">
+          <DialogTitle>Cambiar mi contraseña</DialogTitle>
+          <DialogContent>
+            <FormularioCambioPassword
+              token={token}
+              onCambiado={alCambiarPassword}
+              onCancelar={() => setCambioAbierto(false)}
+            />
+          </DialogContent>
+        </Dialog>
 
-        {esFamilia ? <MiInformacion token={token} /> : (!mostrarPestanas || pestana === 'alumnos') ? <AlumnosPanel token={token} /> : null}
-        {esAdmin && pestana === 'docentes' ? <DocentesPanel token={token} /> : null}
-        {esAdmin && pestana === 'usuarios' ? <UsuariosPanel token={token} /> : null}
-        {esAdmin && pestana === 'permisos' ? <PermisosRoles token={token} /> : null}
-        {esAdmin && pestana === 'datos' ? <DatosMaestros token={token} /> : null}
-        {puedeReportes && pestana === 'reportes' ? <ReportesPanel token={token} /> : null}
+        <Snackbar
+          open={avisoCambio}
+          autoHideDuration={4000}
+          onClose={() => setAvisoCambio(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert severity="success" variant="filled" onClose={() => setAvisoCambio(false)}>
+            Contraseña actualizada
+          </Alert>
+        </Snackbar>
 
-        {/* Footer Info */}
-        <Box sx={{ marginTop: 4, textAlign: 'center', color: '#999' }}>
+        <Box component="main" sx={{ flex: 1, p: { xs: 2, md: 3 }, maxWidth: 1200, width: '100%', boxSizing: 'border-box' }}>
+          <Outlet />
+        </Box>
+
+        <Box sx={{ py: 2, textAlign: 'center', color: '#999' }}>
           <Typography variant="caption">
-            <br />
-            © 2026 {INSTITUCION.nombre} · {INSTITUCION.localidad}
-            <br />
-            Sistema seguro con autenticación JWT y auditoría automática
+            © 2026 {INSTITUCION.nombre} · {INSTITUCION.localidad} · Sistema seguro con autenticación JWT y auditoría automática
           </Typography>
         </Box>
-      </Container>
+      </Box>
     </Box>
   );
 };

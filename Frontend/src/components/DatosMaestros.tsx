@@ -10,8 +10,6 @@ import {
   ListItemButton,
   ListItemText,
   MenuItem,
-  Tab,
-  Tabs,
   TextField,
   Typography,
 } from '@mui/material';
@@ -23,14 +21,15 @@ import type { CursoDTO, DictadoDTO, HorarioDTO, MateriaDTO, NivelDTO } from '../
 import { docenteService } from '../services/docenteService';
 import { DeportesSeccion } from './DeportesSeccion';
 import { InstalacionesSeccion } from './InstalacionesSeccion';
+import type { SeccionDatos } from '../utils/navegacion';
 import { instalacionesService } from '../services/instalacionesService';
 import type { DocenteDTO } from '../services/docenteService';
 
 interface DatosMaestrosProps {
   token: string;
+  seccion: SeccionDatos;
 }
 
-type Seccion = 'niveles' | 'cursos' | 'materias' | 'asignaciones' | 'deportes' | 'instalaciones';
 type Errores = Record<string, string>;
 type Aviso = { tipo: 'success' | 'error'; texto: string } | null;
 
@@ -466,8 +465,16 @@ function AsignacionesSeccion({ onAviso }: { onAviso: (a: Aviso) => void }) {
   );
 }
 
-export const DatosMaestros: React.FC<DatosMaestrosProps> = ({ token }) => {
-  const [seccion, setSeccion] = useState<Seccion>('niveles');
+const TITULOS: Record<SeccionDatos, string> = {
+  niveles: 'Niveles educativos',
+  cursos: 'Cursos',
+  materias: 'Materias',
+  asignaciones: 'Asignaciones de docentes',
+  deportes: 'Deportes',
+  instalaciones: 'Instalaciones',
+};
+
+export const DatosMaestros: React.FC<DatosMaestrosProps> = ({ token, seccion }) => {
   const [aviso, setAviso] = useState<Aviso>(null);
 
   useEffect(() => {
@@ -478,23 +485,7 @@ export const DatosMaestros: React.FC<DatosMaestrosProps> = ({ token }) => {
 
   return (
     <Box>
-      <Tabs
-        value={seccion}
-        onChange={(_e, nueva: Seccion) => {
-          setAviso(null);
-          setSeccion(nueva);
-        }}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{ mb: 3 }}
-      >
-        <Tab value="niveles" label="Niveles" />
-        <Tab value="cursos" label="Cursos" />
-        <Tab value="materias" label="Materias" />
-        <Tab value="asignaciones" label="Asignaciones" />
-        <Tab value="deportes" label="Deportes" />
-        <Tab value="instalaciones" label="Instalaciones" />
-      </Tabs>
+      <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>{TITULOS[seccion]}</Typography>
 
       {aviso && (
         <Alert severity={aviso.tipo} sx={{ mb: 2 }} onClose={() => setAviso(null)}>
