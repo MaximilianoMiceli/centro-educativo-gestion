@@ -33,6 +33,7 @@ class CalificacionesApiTest {
 
     @Test
     void profesorCargaEvaluacionesYNotasDeSusMaterias() throws Exception {
+        DictadoPruebas.asignarMateriaConHorario(mockMvc, login("admin"), 2L);
         String profesor = login("profesor2");
 
         MvcResult materias = mockMvc.perform(get("/api/v1/calificaciones/dictados")
