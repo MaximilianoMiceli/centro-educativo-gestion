@@ -198,6 +198,7 @@ export const AlumnosPanel: React.FC<AlumnosPanelProps> = ({ token }) => {
       />
 
       <AlumnoDialog
+        token={token}
         open={dialogo.abierto}
         alumno={dialogo.alumno}
         cursos={cursos}

@@ -100,6 +100,7 @@ export const AlumnoFichaPagina: React.FC<AlumnoFichaPaginaProps> = ({ token }) =
       <Paper sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)', borderRadius: 3, overflow: 'hidden' }}>
         <AlumnoFichaContenido
           key={alumno.id}
+          token={token}
           alumno={alumno}
           cursos={cursos}
           editable={editable}

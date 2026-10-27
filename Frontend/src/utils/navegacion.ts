@@ -29,6 +29,7 @@ export const ITEMS_MENU: ItemMenu[] = [
   { ruta: '/alumnos', etiqueta: 'Alumnos', grupo: 'Personas', roles: [...GESTION, 'PROFESOR'], icono: 'alumnos' },
   { ruta: '/docentes', etiqueta: 'Docentes', grupo: 'Personas', roles: ADMIN, icono: 'docentes' },
   { ruta: '/horarios', etiqueta: 'Horarios', grupo: 'Académico', roles: GESTION, icono: 'horarios' },
+  { ruta: '/calificaciones', etiqueta: 'Calificaciones', grupo: 'Académico', roles: ['ADMIN', 'PROFESOR'], icono: 'calificaciones' },
   { ruta: '/datos/niveles', etiqueta: 'Niveles', grupo: 'Académico', roles: ADMIN, icono: 'niveles' },
   { ruta: '/datos/cursos', etiqueta: 'Cursos', grupo: 'Académico', roles: ADMIN, icono: 'cursos' },
   { ruta: '/datos/materias', etiqueta: 'Materias', grupo: 'Académico', roles: ADMIN, icono: 'materias' },
@@ -41,6 +42,8 @@ export const ITEMS_MENU: ItemMenu[] = [
   { ruta: '/usuarios', etiqueta: 'Usuarios', grupo: 'Administración', roles: ADMIN, icono: 'usuarios' },
   { ruta: '/permisos', etiqueta: 'Permisos', grupo: 'Administración', roles: ADMIN, icono: 'permisos' },
   { ruta: '/mi-informacion', etiqueta: 'Mi información', grupo: '', roles: ['PADRE', 'ALUMNO'], icono: 'familia' },
+  { ruta: '/mis-calificaciones', etiqueta: 'Calificaciones', grupo: '', roles: ['PADRE', 'ALUMNO'], icono: 'calificaciones' },
+  { ruta: '/mis-servicios', etiqueta: 'Mis servicios', grupo: '', roles: ['PADRE', 'ALUMNO'], icono: 'misServicios' },
 ];
 
 export function itemsPermitidos(rol: string | null): ItemMenu[] {

@@ -15,12 +15,12 @@ describe('itemsPermitidos', () => {
   });
 
   it('el profesor solo ve alumnos', () => {
-    expect(itemsPermitidos('PROFESOR').map((i) => i.ruta)).toEqual(['/mi-agenda', '/alumnos']);
+    expect(itemsPermitidos('PROFESOR').map((i) => i.ruta)).toEqual(['/mi-agenda', '/alumnos', '/calificaciones']);
   });
 
   it('padres y alumnos solo ven su información', () => {
-    expect(itemsPermitidos('PADRE').map((i) => i.ruta)).toEqual(['/mi-informacion']);
-    expect(itemsPermitidos('ALUMNO').map((i) => i.ruta)).toEqual(['/mi-informacion']);
+    expect(itemsPermitidos('PADRE').map((i) => i.ruta)).toEqual(['/mi-informacion', '/mis-calificaciones', '/mis-servicios']);
+    expect(itemsPermitidos('ALUMNO').map((i) => i.ruta)).toEqual(['/mi-informacion', '/mis-calificaciones', '/mis-servicios']);
   });
 
   it('sin rol no hay accesos', () => {

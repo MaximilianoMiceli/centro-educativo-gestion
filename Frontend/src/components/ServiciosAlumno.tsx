@@ -14,7 +14,6 @@ import {
   Typography,
 } from '@mui/material';
 import { serviciosService } from '../services/serviciosService';
-import { ConfirmDialog } from './ConfirmDialog';
 import type {
   AtencionEnfermeria,
   Deporte,
@@ -22,16 +21,68 @@ import type {
   Recorrido,
   ServiciosAlumno as Servicios,
 } from '../services/serviciosService';
+import { miServiciosService } from '../services/miServiciosService';
+import { ConfirmDialog } from './ConfirmDialog';
+import { EstadoVacio } from './EstadoVacio';
 
 interface ServiciosAlumnoProps {
   alumnoId: number;
+  /** Sesión: los servicios necesitan el token para autorizar las llamadas. */
+  token: string;
+  /** Permite inscribir y dar de baja. */
   editable: boolean;
+  /** Vista del propio alumno: solo ve y gestiona deportes, transporte, comedor e idiomas. Apoyo y enfermería son de administración. */
+  propio?: boolean;
+}
+
+/** Operaciones sobre los servicios, iguales para el administrador y para el propio alumno. */
+interface ApiServicios {
+  cargar: () => Promise<Servicios>;
+  inscribirDeporte: (grupoId: number) => Promise<Servicios>;
+  quitarDeporte: (inscripcionId: number) => Promise<Servicios>;
+  asignarTransporte: (recorridoId: number) => Promise<Servicios>;
+  quitarTransporte: () => Promise<Servicios>;
+  asignarComedor: (inscripto: boolean) => Promise<Servicios>;
+  inscribirIdioma: (idiomaId: number) => Promise<Servicios>;
+  quitarIdioma: (inscripcionId: number) => Promise<Servicios>;
+}
+
+function apiAdministracion(alumnoId: number): ApiServicios {
+  return {
+    cargar: () => serviciosService.servicios(alumnoId),
+    inscribirDeporte: (grupoId) => serviciosService.inscribirDeporte(alumnoId, grupoId),
+    quitarDeporte: (inscripcionId) => serviciosService.quitarDeporte(alumnoId, inscripcionId),
+    asignarTransporte: (recorridoId) => serviciosService.asignarTransporte(alumnoId, recorridoId),
+    quitarTransporte: () => serviciosService.quitarTransporte(alumnoId),
+    asignarComedor: (inscripto) => serviciosService.asignarComedor(alumnoId, inscripto),
+    inscribirIdioma: (idiomaId) => serviciosService.inscribirIdioma(alumnoId, idiomaId),
+    quitarIdioma: (inscripcionId) => serviciosService.quitarIdioma(alumnoId, inscripcionId),
+  };
+}
+
+const apiPropia: ApiServicios = {
+  cargar: () => miServiciosService.servicios(),
+  inscribirDeporte: (grupoId) => miServiciosService.inscribirDeporte(grupoId),
+  quitarDeporte: (inscripcionId) => miServiciosService.quitarDeporte(inscripcionId),
+  asignarTransporte: (recorridoId) => miServiciosService.asignarTransporte(recorridoId),
+  quitarTransporte: () => miServiciosService.quitarTransporte(),
+  asignarComedor: (inscripto) => miServiciosService.asignarComedor(inscripto),
+  inscribirIdioma: (idiomaId) => miServiciosService.inscribirIdioma(idiomaId),
+  quitarIdioma: (inscripcionId) => miServiciosService.quitarIdioma(inscripcionId),
+};
+
+interface Baja {
+  titulo: string;
+  mensaje: string;
+  operacion: () => Promise<Servicios>;
 }
 
 const fechaCorta = (valor: string) => new Date(`${valor}T00:00:00`).toLocaleDateString('es-AR');
 const fechaHora = (valor: string) => new Date(valor).toLocaleString('es-AR');
 
-export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, editable }) => {
+export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, token, editable, propio = false }) => {
+  const api = propio ? apiPropia : apiAdministracion(alumnoId);
+  const administra = editable && !propio;
   const [servicios, setServicios] = useState<Servicios | null>(null);
   const [deportes, setDeportes] = useState<Deporte[]>([]);
   const [recorridos, setRecorridos] = useState<Recorrido[]>([]);
@@ -45,48 +96,51 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
   const [motivo, setMotivo] = useState('');
   const [observacionesEnfermeria, setObservacionesEnfermeria] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [pendiente, setPendiente] = useState<{ titulo: string; mensaje: string; operacion: () => Promise<Servicios> } | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [baja, setBaja] = useState<Baja | null>(null);
   const [confirmando, setConfirmando] = useState(false);
 
-  const cargar = async () => {
-    setServicios(await serviciosService.servicios(alumnoId));
-  };
-
   useEffect(() => {
+    serviciosService.setToken(token);
+    miServiciosService.setToken(token);
     setError(null);
+    setAviso(null);
     setDeporteSel('');
     setGrupoSel('');
     setIdiomaSel('');
-    cargar().catch(() => setError('No se pudieron cargar los servicios del alumno'));
-    serviciosService.listarDeportes().then(setDeportes);
+    setServicios(null);
+    api.cargar().then(setServicios).catch(() => setError('No se pudieron cargar los servicios'));
+    serviciosService.listarDeportes().then(setDeportes).catch(() => setDeportes([]));
     serviciosService.listarRecorridos().then(setRecorridos);
     serviciosService.listarIdiomas().then(setIdiomas);
-    if (editable) {
+    if (administra) {
       serviciosService.atencionesEnfermeria(alumnoId).then(setAtenciones).catch(() => setAtenciones([]));
     }
-  }, [alumnoId, editable]);
+  }, [alumnoId, propio, administra]);
 
-  const pedirBaja = (titulo: string, mensaje: string, operacion: () => Promise<Servicios>) => {
-    setPendiente({ titulo, mensaje, operacion });
-  };
-
-  const confirmarBaja = async () => {
-    if (!pendiente) return;
-    setConfirmando(true);
-    await ejecutar(pendiente.operacion);
-    setConfirmando(false);
-    setPendiente(null);
-  };
-
-  const ejecutar = async (operacion: () => Promise<Servicios>) => {
+  const ejecutar = async (operacion: () => Promise<Servicios>, mensajeOk?: string) => {
     setError(null);
+    setAviso(null);
     try {
       setServicios(await operacion());
+      if (mensajeOk) setAviso(mensajeOk);
     } catch (err: any) {
       const data = err.response?.data;
       const detalle = data?.errores ? Object.values(data.errores).join(' · ') : null;
       setError(detalle ?? data?.message ?? 'No se pudo completar la operación');
     }
+  };
+
+  const pedirBaja = (titulo: string, mensaje: string, operacion: () => Promise<Servicios>) => {
+    setBaja({ titulo, mensaje, operacion });
+  };
+
+  const confirmarBaja = async () => {
+    if (!baja) return;
+    setConfirmando(true);
+    await ejecutar(baja.operacion, 'Baja registrada');
+    setConfirmando(false);
+    setBaja(null);
   };
 
   const registrarAtencion = async () => {
@@ -104,7 +158,9 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
   };
 
   if (!servicios) {
-    return <Typography variant="body2" sx={{ color: '#666' }}>Cargando servicios…</Typography>;
+    return error
+      ? <Alert severity="error">{error}</Alert>
+      : <Typography variant="body2" sx={{ color: '#666' }}>Cargando servicios…</Typography>;
   }
 
   const gruposDelDeporte = deportes
@@ -114,10 +170,12 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
     d.grupos.some((g) => g.nivel === servicios.nivel)
       && !servicios.deportes.some((i) => i.deporteId === d.id));
   const idiomasDisponibles = idiomas.filter((i) => !servicios.idiomas.some((x) => x.idiomaId === i.id));
+  const textoInscribir = propio ? 'Inscribirme' : 'Inscribir';
 
   return (
     <Box>
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>}
+      {aviso && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setAviso(null)}>{aviso}</Alert>}
 
       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Deportes</Typography>
       <List dense>
@@ -127,7 +185,12 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
             sx={{ pl: 1 }}
             primary={`${i.deporte} · ${i.horario}`}
             secondary={editable ? (
-              <Button size="small" color="error" onClick={() => pedirBaja('Dar de baja el deporte', `${i.deporte} dejará de figurar en su horario.`, () => serviciosService.quitarDeporte(alumnoId, i.id))}>
+              <Button
+                size="small"
+                color="error"
+                onClick={() => pedirBaja('Dar de baja el deporte', `${i.deporte} dejará de figurar en su horario.`,
+                  () => api.quitarDeporte(i.id))}
+              >
                 Dar de baja
               </Button>
             ) : undefined}
@@ -149,6 +212,7 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
               setGrupoSel('');
             }}
             size="small"
+            helperText={deportesDisponibles.length === 0 ? 'No hay deportes con horario para su nivel' : ' '}
           >
             {deportesDisponibles.map((d) => (
               <MenuItem key={d.id} value={String(d.id)}>{d.nombre}</MenuItem>
@@ -169,9 +233,10 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
           <Button
             variant="contained"
             disabled={!grupoSel}
-            onClick={() => ejecutar(() => serviciosService.inscribirDeporte(alumnoId, Number(grupoSel)))}
+            onClick={() => ejecutar(() => api.inscribirDeporte(Number(grupoSel)), 'Inscripción registrada')}
+            sx={{ mt: 0.5 }}
           >
-            Inscribir
+            {textoInscribir}
           </Button>
         </Box>
       )}
@@ -200,12 +265,15 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
             <Button
               variant="outlined"
               disabled={!recorridoSel}
-              onClick={() => ejecutar(() => serviciosService.asignarTransporte(alumnoId, Number(recorridoSel)))}
+              onClick={() => ejecutar(() => api.asignarTransporte(Number(recorridoSel)), 'Transporte asignado')}
             >
-              Asignar
+              {propio && servicios.transporte ? 'Cambiar' : 'Asignar'}
             </Button>
             {servicios.transporte && (
-              <Button color="error" onClick={() => pedirBaja('Dar de baja el transporte', 'El alumno deja de usar el recorrido asignado.', () => serviciosService.quitarTransporte(alumnoId))}>
+              <Button
+                color="error"
+                onClick={() => pedirBaja('Dar de baja el transporte', 'Deja de usar el recorrido asignado.', () => api.quitarTransporte())}
+              >
                 Dar de baja
               </Button>
             )}
@@ -221,7 +289,8 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
           <Checkbox
             checked={servicios.comedor}
             disabled={!editable}
-            onChange={(e) => ejecutar(() => serviciosService.asignarComedor(alumnoId, e.target.checked))}
+            onChange={(e) => ejecutar(() => api.asignarComedor(e.target.checked),
+              e.target.checked ? 'Inscripción al comedor registrada' : 'Baja del comedor registrada')}
           />
         }
         label={servicios.comedor ? 'Inscripto en el comedor' : 'No inscripto'}
@@ -240,7 +309,8 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
             label={`${i.idioma} · desde ${fechaCorta(i.fechaInscripcion)}`}
             color="secondary"
             variant="outlined"
-            onDelete={editable ? () => pedirBaja('Dar de baja el idioma', `${i.idioma} se quita de su inscripción.`, () => serviciosService.quitarIdioma(alumnoId, i.id)) : undefined}
+            onDelete={editable ? () => pedirBaja('Dar de baja el idioma', `${i.idioma} se quita de su inscripción.`,
+              () => api.quitarIdioma(i.id)) : undefined}
           />
         ))}
       </Box>
@@ -262,49 +332,57 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
             variant="outlined"
             disabled={!idiomaSel}
             onClick={async () => {
-              await ejecutar(() => serviciosService.inscribirIdioma(alumnoId, Number(idiomaSel)));
+              await ejecutar(() => api.inscribirIdioma(Number(idiomaSel)), 'Inscripción al idioma registrada');
               setIdiomaSel('');
             }}
           >
-            Inscribir
+            {textoInscribir}
           </Button>
         </Box>
       )}
 
-      <Divider sx={{ my: 2 }} />
+      {!propio && (
+        <>
+          <Divider sx={{ my: 2 }} />
 
-      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Servicio de apoyo estudiantil</Typography>
-      {servicios.apoyo ? (
-        <Box sx={{ mt: 1 }}>
-          <Chip label={`Inscripto desde ${fechaCorta(servicios.apoyo.fechaInicio)}`} color="success" variant="outlined" />
-          {servicios.apoyo.observaciones && (
-            <Typography variant="body2" sx={{ mt: 1 }}>{servicios.apoyo.observaciones}</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Servicio de apoyo estudiantil</Typography>
+          {servicios.apoyo ? (
+            <Box sx={{ mt: 1 }}>
+              <Chip label={`Inscripto desde ${fechaCorta(servicios.apoyo.fechaInicio)}`} color="success" variant="outlined" />
+              {servicios.apoyo.observaciones && (
+                <Typography variant="body2" sx={{ mt: 1 }}>{servicios.apoyo.observaciones}</Typography>
+              )}
+            </Box>
+          ) : (
+            <Typography variant="body2" sx={{ color: '#666', mt: 1 }}>No inscripto</Typography>
           )}
-        </Box>
-      ) : (
-        <Typography variant="body2" sx={{ color: '#666', mt: 1 }}>No inscripto</Typography>
-      )}
-      {editable && (
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, flexWrap: 'wrap', mt: 1 }}>
-          <TextField
-            label="Observaciones (opcional)"
-            value={apoyoObservaciones}
-            onChange={(e) => setApoyoObservaciones(e.target.value)}
-            size="small"
-            sx={{ minWidth: 320 }}
-          />
-          <Button variant="outlined" onClick={() => ejecutar(() => serviciosService.asignarApoyo(alumnoId, apoyoObservaciones))}>
-            {servicios.apoyo ? 'Guardar observaciones' : 'Inscribir'}
-          </Button>
-          {servicios.apoyo && (
-            <Button color="error" onClick={() => pedirBaja('Dar de baja del apoyo estudiantil', 'Se borran las observaciones cargadas.', () => serviciosService.quitarApoyo(alumnoId))}>
-              Dar de baja
-            </Button>
+          {administra && (
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, flexWrap: 'wrap', mt: 1 }}>
+              <TextField
+                label="Observaciones (opcional)"
+                value={apoyoObservaciones}
+                onChange={(e) => setApoyoObservaciones(e.target.value)}
+                size="small"
+                sx={{ minWidth: 320 }}
+              />
+              <Button variant="outlined" onClick={() => ejecutar(() => serviciosService.asignarApoyo(alumnoId, apoyoObservaciones), 'Apoyo estudiantil actualizado')}>
+                {servicios.apoyo ? 'Guardar observaciones' : 'Inscribir'}
+              </Button>
+              {servicios.apoyo && (
+                <Button
+                  color="error"
+                  onClick={() => pedirBaja('Dar de baja del apoyo estudiantil', 'Se borran las observaciones cargadas.',
+                    () => serviciosService.quitarApoyo(alumnoId))}
+                >
+                  Dar de baja
+                </Button>
+              )}
+            </Box>
           )}
-        </Box>
+        </>
       )}
 
-      {editable && (
+      {administra && (
         <>
           <Divider sx={{ my: 2 }} />
 
@@ -341,20 +419,21 @@ export const ServiciosAlumno: React.FC<ServiciosAlumnoProps> = ({ alumnoId, edit
               />
             ))}
             {atenciones.length === 0 && (
-              <Typography variant="body2" sx={{ pl: 1, color: '#666' }}>Sin atenciones registradas</Typography>
+              <EstadoVacio titulo="Sin atenciones registradas" descripcion="Cuando el alumno pase por enfermería, la atención aparecerá acá." />
             )}
           </List>
         </>
       )}
+
       <ConfirmDialog
-        abierto={!!pendiente}
-        titulo={pendiente?.titulo ?? ''}
-        mensaje={pendiente?.mensaje ?? ''}
+        abierto={!!baja}
+        titulo={baja?.titulo ?? ''}
+        mensaje={baja?.mensaje ?? ''}
         textoConfirmar="Dar de baja"
         peligro
         cargando={confirmando}
         onConfirmar={confirmarBaja}
-        onCancelar={() => setPendiente(null)}
+        onCancelar={() => setBaja(null)}
       />
     </Box>
   );

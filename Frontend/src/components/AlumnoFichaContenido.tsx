@@ -8,6 +8,7 @@ import { EstadoVacio } from './EstadoVacio';
 
 interface AlumnoFichaContenidoProps {
   alumno: AlumnoFicha | null;
+  token: string;
   cursos: CursoDTO[];
   editable: boolean;
   onGuardado: (alumno: AlumnoFicha, esNuevo: boolean) => void;
@@ -48,7 +49,7 @@ function aFormulario(alumno: AlumnoFicha): DatosAlumno {
  * Contenido de la ficha de un alumno: datos, materias y servicios. Se usa dentro del diálogo y en la página
  * completa, así que la pantalla que lo contiene decide si se muestra como ventana o como página.
  */
-export const AlumnoFichaContenido: React.FC<AlumnoFichaContenidoProps> = ({ alumno, cursos, editable, onGuardado }) => {
+export const AlumnoFichaContenido: React.FC<AlumnoFichaContenidoProps> = ({ alumno, cursos, editable, onGuardado, token }) => {
   const [pestana, setPestana] = useState<Pestana>('datos');
   const [form, setForm] = useState<DatosAlumno>(alumno ? aFormulario(alumno) : FORMULARIO_VACIO);
   const [materias, setMaterias] = useState<AlumnoMateria[] | null>(null);
@@ -166,7 +167,7 @@ export const AlumnoFichaContenido: React.FC<AlumnoFichaContenidoProps> = ({ alum
           </Box>
         )}
 
-        {pestana === 'servicios' && alumno && <ServiciosAlumno alumnoId={alumno.id} editable={editable} />}
+        {pestana === 'servicios' && alumno && <ServiciosAlumno alumnoId={alumno.id} token={token} editable={editable} />}
 
         {pestana === 'materias' && (
           <List dense>

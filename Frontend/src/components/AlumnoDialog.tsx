@@ -6,6 +6,7 @@ import { AlumnoFichaContenido } from './AlumnoFichaContenido';
 
 interface AlumnoDialogProps {
   open: boolean;
+  token: string;
   alumno: AlumnoFicha | null;
   cursos: CursoDTO[];
   editable: boolean;
@@ -14,7 +15,7 @@ interface AlumnoDialogProps {
 }
 
 /** Ventana para dar de alta un alumno nuevo. Las fichas existentes se abren en su página propia. */
-export const AlumnoDialog: React.FC<AlumnoDialogProps> = ({ open, alumno, cursos, editable, onClose, onGuardado }) => (
+export const AlumnoDialog: React.FC<AlumnoDialogProps> = ({ open, alumno, cursos, editable, onClose, onGuardado, token }) => (
   <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
     <DialogTitle>
       {alumno ? `${alumno.apellido}, ${alumno.nombre}` : 'Nuevo alumno'}
@@ -25,7 +26,7 @@ export const AlumnoDialog: React.FC<AlumnoDialogProps> = ({ open, alumno, cursos
       )}
     </DialogTitle>
     {open && (
-      <AlumnoFichaContenido alumno={alumno} cursos={cursos} editable={editable} onGuardado={onGuardado} />
+      <AlumnoFichaContenido alumno={alumno} token={token} cursos={cursos} editable={editable} onGuardado={onGuardado} />
     )}
     <DialogActions sx={{ px: 3, py: 2 }}>
       <Button onClick={onClose}>Cerrar</Button>

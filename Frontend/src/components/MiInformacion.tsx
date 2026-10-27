@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Box, Card, CardContent, Chip, Divider, Tab, Tabs, Typography, List, ListItemText } from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Chip, Divider, Stack, Tab, Tabs, Typography, List, ListItemText } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { miInformacionService } from '../services/miInformacionService';
 import type { AlumnoResumen, MiInformacion as Detalle } from '../services/miInformacionService';
 
@@ -86,27 +87,28 @@ export const MiInformacion: React.FC<MiInformacionProps> = ({ token }) => {
 
           <Card sx={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
             <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>Servicios</Typography>
-              <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle2" sx={{ mt: 1 }}>Deportes</Typography>
-              <List dense>
+              <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>Servicios activos</Typography>
+                <Button component={RouterLink} to="/mis-servicios" variant="outlined" size="small">
+                  Ver y gestionar
+                </Button>
+              </Stack>
+              <Divider sx={{ mb: 1.5 }} />
+              <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
                 {detalle.servicios.deportes.map((d) => (
-                  <ListItemText key={d.id} sx={{ px: 1 }} primary={`${d.deporte} · ${d.horario}`} />
+                  <Chip key={d.id} size="small" label={`${d.deporte} · ${d.horario}`} color="success" variant="outlined" />
                 ))}
-                {detalle.servicios.deportes.length === 0 && (
-                  <Typography variant="body2" sx={{ px: 1, color: '#666' }}>Sin deportes inscriptos.</Typography>
+                {detalle.servicios.transporte && (
+                  <Chip size="small" label={`Transporte: ${detalle.servicios.transporte.nombre}`} color="primary" variant="outlined" />
                 )}
-              </List>
-              <Typography variant="subtitle2" sx={{ mt: 1 }}>Transporte</Typography>
-              <Box sx={{ px: 1, mb: 1 }}>
-                {detalle.servicios.transporte
-                  ? <Chip size="small" label={detalle.servicios.transporte.nombre} color="primary" variant="outlined" />
-                  : <Typography variant="body2" sx={{ color: '#666' }}>Sin transporte asignado.</Typography>}
-              </Box>
-              <Typography variant="subtitle2">Comedor</Typography>
-              <Typography variant="body2" sx={{ px: 1, color: '#666' }}>
-                {detalle.servicios.comedor ? 'Inscripto en el comedor' : 'No inscripto'}
-              </Typography>
+                {detalle.servicios.comedor && <Chip size="small" label="Comedor" color="primary" variant="outlined" />}
+                {detalle.servicios.idiomas.map((i) => (
+                  <Chip key={i.id} size="small" label={i.idioma} color="secondary" variant="outlined" />
+                ))}
+                {detalle.servicios.deportes.length === 0 && !detalle.servicios.transporte && !detalle.servicios.comedor && detalle.servicios.idiomas.length === 0 && (
+                  <Typography variant="body2" sx={{ color: '#666' }}>No tiene servicios activos.</Typography>
+                )}
+              </Stack>
             </CardContent>
           </Card>
         </>
