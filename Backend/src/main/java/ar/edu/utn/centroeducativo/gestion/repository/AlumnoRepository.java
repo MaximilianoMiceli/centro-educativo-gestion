@@ -9,6 +9,10 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface AlumnoRepository extends JpaRepository<Alumno, Long>, JpaSpecificationExecutor<Alumno> {
 
+    @Override
+    @EntityGraph(attributePaths = {"curso", "curso.nivel"})
+    List<Alumno> findAll();
+
     @EntityGraph(attributePaths = {"curso", "curso.nivel"})
     Optional<Alumno> findWithCursoById(Long id);
 
@@ -24,5 +28,6 @@ public interface AlumnoRepository extends JpaRepository<Alumno, Long>, JpaSpecif
 
     boolean existsByEmailAndIdNot(String email, Long id);
 
+    @EntityGraph(attributePaths = {"curso", "curso.nivel"})
     List<Alumno> findByCurso_Id(Long cursoId);
 }
