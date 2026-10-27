@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,9 +78,10 @@ public class DocenteService {
 
     @Transactional(readOnly = true)
     public List<DocenteDTO> listar() {
+        Set<Long> conUsuario = usuarioRepository.findDocenteIdsConUsuario();
         return docenteRepository.findAll().stream()
                 .sorted(Comparator.comparing(Docente::getApellido).thenComparing(Docente::getNombre))
-                .map(this::toDTO)
+                .map(docente -> toDTO(docente, !conUsuario.contains(docente.getId())))
                 .toList();
     }
 
@@ -167,11 +169,14 @@ public class DocenteService {
     }
 
     private DocenteDTO toDTO(Docente docente) {
+        return toDTO(docente, !usuarioRepository.existsByDocente_Id(docente.getId()));
+    }
+
+    private DocenteDTO toDTO(Docente docente, boolean dniEditable) {
         List<String> cursos = docente.getCursos().stream()
                 .map(Curso::getDescripcion)
                 .sorted()
                 .toList();
-        boolean dniEditable = !usuarioRepository.existsByDocente_Id(docente.getId());
         return new DocenteDTO(
                 docente.getId(),
                 docente.getLegajo(),
