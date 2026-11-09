@@ -3,7 +3,7 @@ import { Pressable, RefreshControl, SectionList, Text, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { deuda as pedirDeuda } from '../api/backend';
 import type { Deuda, ItemDeuda } from '../api/tipos';
-import { Aviso, CampoTexto, Cargando, Insignia, SelectorHijo, Tarjeta, Vacio, estilos } from '../componentes/ui';
+import { Aviso, CampoTexto, Cargando, Insignia, SelectorHijo, Tarjeta, Vacio, estilos, PantallaCompleta } from '../componentes/ui';
 import { useFamilia } from '../familia/FamiliaContext';
 import { colores, espacio } from '../tema';
 import { esFechaValida } from '../utils/facturas';
@@ -46,13 +46,25 @@ export function DeudaPantalla() {
   const secciones = useMemo(() => agruparPorFactura(datos?.items ?? []), [datos]);
 
   if (cargandoHijos) {
-    return <Cargando />;
+    return (
+      <PantallaCompleta>
+        <Cargando />
+      </PantallaCompleta>
+    );
   }
   if (errorHijos) {
-    return <Aviso texto={errorHijos} />;
+    return (
+      <PantallaCompleta>
+        <Aviso texto={errorHijos} />
+      </PantallaCompleta>
+    );
   }
   if (!hijo) {
-    return <Vacio texto="Tu cuenta no tiene alumnos vinculados. Consultá con la administración." />;
+    return (
+      <PantallaCompleta>
+        <Vacio texto="Tu cuenta no tiene alumnos vinculados. Consultá con la administración." />
+      </PantallaCompleta>
+    );
   }
 
   return (

@@ -5,7 +5,7 @@ import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { facturas as pedirFacturas } from '../api/backend';
 import type { Factura } from '../api/tipos';
-import { Aviso, Cargando, Chips, CampoTexto, Insignia, SelectorHijo, Tarjeta, Vacio, estilos } from '../componentes/ui';
+import { Aviso, Cargando, Chips, CampoTexto, Insignia, SelectorHijo, Tarjeta, Vacio, estilos, PantallaCompleta } from '../componentes/ui';
 import { useFamilia } from '../familia/FamiliaContext';
 import type { RaizParams } from '../navegacion/tipos';
 import { colores, espacio } from '../tema';
@@ -35,13 +35,25 @@ export function CuotasPantalla() {
   );
 
   if (cargandoHijos) {
-    return <Cargando />;
+    return (
+      <PantallaCompleta>
+        <Cargando />
+      </PantallaCompleta>
+    );
   }
   if (errorHijos) {
-    return <Aviso texto={errorHijos} />;
+    return (
+      <PantallaCompleta>
+        <Aviso texto={errorHijos} />
+      </PantallaCompleta>
+    );
   }
   if (!hijo) {
-    return <Vacio texto="Tu cuenta no tiene alumnos vinculados. Consultá con la administración." />;
+    return (
+      <PantallaCompleta>
+        <Vacio texto="Tu cuenta no tiene alumnos vinculados. Consultá con la administración." />
+      </PantallaCompleta>
+    );
   }
 
   const visibles = filtrarPorEstado(datos ?? [], filtro);

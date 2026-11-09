@@ -2,7 +2,7 @@ import React from 'react';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { miInformacion } from '../api/backend';
-import { Aviso, Cargando, SelectorHijo, Tarjeta, Vacio, estilos } from '../componentes/ui';
+import { Aviso, Cargando, SelectorHijo, Tarjeta, Vacio, estilos, PantallaCompleta } from '../componentes/ui';
 import { useFamilia } from '../familia/FamiliaContext';
 import { colores } from '../tema';
 import { useCarga } from '../utils/useCarga';
@@ -13,13 +13,25 @@ export function ServiciosPantalla() {
   const { datos, cargando, error, recargar } = useCarga(hijo ? () => miInformacion(hijo.id) : null, [hijo?.id]);
 
   if (cargandoHijos) {
-    return <Cargando />;
+    return (
+      <PantallaCompleta>
+        <Cargando />
+      </PantallaCompleta>
+    );
   }
   if (errorHijos) {
-    return <Aviso texto={errorHijos} />;
+    return (
+      <PantallaCompleta>
+        <Aviso texto={errorHijos} />
+      </PantallaCompleta>
+    );
   }
   if (!hijo) {
-    return <Vacio texto="Tu cuenta no tiene alumnos vinculados. Consultá con la administración." />;
+    return (
+      <PantallaCompleta>
+        <Vacio texto="Tu cuenta no tiene alumnos vinculados. Consultá con la administración." />
+      </PantallaCompleta>
+    );
   }
   const servicios = datos?.servicios;
 

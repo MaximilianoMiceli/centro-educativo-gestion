@@ -8,7 +8,7 @@ import { factura as pedirFactura, registrarPago } from '../api/backend';
 import { ApiError } from '../api/cliente';
 import type { ArchivoAdjunto } from '../api/tipos';
 import { useAuth } from '../auth/AuthContext';
-import { Aviso, Boton, CampoTexto, Cargando, Insignia, Tarjeta, estilos } from '../componentes/ui';
+import { Aviso, Boton, CampoTexto, Cargando, Insignia, Tarjeta, estilos, PantallaCompleta } from '../componentes/ui';
 import type { RaizParams } from '../navegacion/tipos';
 import { colores, espacio } from '../tema';
 import { alternar, esFechaValida, hoyISO, itemsPendientes, totalElegido } from '../utils/facturas';
@@ -31,7 +31,11 @@ export function FacturaPantalla({ route }: Props) {
   const [errorPago, setErrorPago] = useState<string | null>(null);
 
   if (!factura) {
-    return error ? <Aviso texto={error} /> : <Cargando />;
+    return (
+      <PantallaCompleta>
+        {error ? <Aviso texto={error} /> : <Cargando />}
+      </PantallaCompleta>
+    );
   }
 
   const pendientes = itemsPendientes(factura);

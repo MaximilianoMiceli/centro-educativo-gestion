@@ -94,6 +94,11 @@ export function Aviso({ texto, tipo = 'error' }: { texto: string; tipo?: 'error'
   );
 }
 
+/** Ocupa toda la pantalla con el fondo de la app, para los estados de carga, error o vacío. */
+export function PantallaCompleta({ children }: { children: React.ReactNode }) {
+  return <View style={[estilos.pantalla, { justifyContent: 'center' }]}>{children}</View>;
+}
+
 export function Cargando() {
   return (
     <View style={estilos.centro}>
