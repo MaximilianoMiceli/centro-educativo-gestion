@@ -23,6 +23,14 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
     List<Factura> findDelAlumno(@Param("alumnoId") Long alumnoId, @Param("desde") LocalDate desde,
             @Param("hasta") LocalDate hasta);
 
+    @EntityGraph(attributePaths = {"alumno", "items"})
+    @Query("select f from Factura f where f.periodo = :periodo order by f.alumno.apellido, f.alumno.nombre")
+    List<Factura> findDelPeriodo(@Param("periodo") String periodo);
+
+    @EntityGraph(attributePaths = {"alumno", "items"})
+    @Query("select f from Factura f where f.vencimiento <= :fecha order by f.periodo, f.alumno.apellido, f.alumno.nombre")
+    List<Factura> findVencidasHasta(@Param("fecha") LocalDate fecha);
+
     @Query("select f.alumno.id from Factura f where f.periodo = :periodo")
     Set<Long> findAlumnoIdsConFactura(@Param("periodo") String periodo);
 

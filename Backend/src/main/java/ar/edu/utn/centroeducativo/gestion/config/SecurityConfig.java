@@ -117,6 +117,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/calificaciones/**").hasAuthority("CALIFICACIONES_CARGAR")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/calificaciones/**").hasAuthority("CALIFICACIONES_CARGAR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/facturacion/**").hasAuthority("FINANZAS_ADMINISTRAR")
+                .requestMatchers("/api/v1/correos/**").hasAuthority("FINANZAS_ADMINISTRAR")
                 .requestMatchers(HttpMethod.GET, "/api/v1/precios").hasAuthority("FINANZAS_CONSULTAR")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/precios").hasAuthority("FINANZAS_ADMINISTRAR")
                 .anyRequest().authenticated()

@@ -2,7 +2,7 @@
 
 Fechas clave: app terminada y lista para la actividad de testing el **11/11/2026**; informe y bitácora de IA el **17/11/2026**.
 Última actualización: 09/11/2026.
-Estado: fases 0, 1, 2 y 3 completas (la app se verificó con pruebas, contra el backend real y en el navegador; falta probarla en el emulador de Android).
+Estado: fases 0 a 4 completas. Los correos están en modo sin envío; la app se verificó con pruebas, contra el backend real y en el navegador, y falta probarla en el emulador de Android.
 
 ## 1. Objetivo
 
@@ -67,7 +67,8 @@ La factura se arma con las inscripciones vigentes del alumno (deportes, recorrid
 Administración (permiso nuevo `FINANZAS_ADMINISTRAR`, rol Admin):
 - `GET` y `PUT /api/v1/precios`: ver y cambiar los valores.
 - `POST /api/v1/facturacion/generar?periodo=AAAA-MM`: genera las facturas del período, sin duplicar.
-- `POST /api/v1/correos/ejecutar?tipo=RECORDATORIO|DEUDA`: dispara el envío a mano (para la demostración).
+- `POST /api/v1/correos/ejecutar?tipo=RECORDATORIO|DEUDA&fecha=AAAA-MM-DD`: prepara los correos a pedido, igual que la tarea programada. Con `fecha` se simula otro día.
+- `GET /api/v1/correos`, `/{id}` y `/{id}/adjuntos/{adjuntoId}`: ver los correos preparados, su texto y las facturas adjuntas.
 
 Consulta (permiso nuevo `FINANZAS_CONSULTAR`, roles Admin y Dirección), con filtro `desde` y `hasta`:
 - `/api/v1/finanzas/ingresos`
@@ -82,6 +83,17 @@ Padres (permiso existente `MI_INFORMACION_CONSULTAR`, solo sus hijos):
 - `POST /api/v1/mi-informacion/facturas/{id}/pagos`: el padre elige ítems y adjunta la transferencia. Responde con el comprobante emitido.
 - `GET /api/v1/mi-informacion/pagos/{id}/comprobante` devuelve el comprobante emitido en PDF, y `.../pagos/{id}/archivo` la transferencia adjunta.
 - Las inscripciones a deportes, transporte y comedor ya existen en `/api/v1/mi-informacion/servicios`.
+
+### Correos programados
+
+Una tarea diaria a las 9:00 (hora argentina) decide qué corresponde según la fecha:
+- **Último día hábil del mes:** emite las facturas del mes siguiente (si faltan) y le manda a cada padre el total, la composición por hijo y la factura de cada uno en PDF.
+- **Día 20:** a los padres con facturas vencidas sin pagar completas, les manda la deuda que queda.
+
+Un padre no recibe dos veces el mismo correo del mes. Si el envío falla queda registrado como error y se reintenta en la próxima ejecución.
+Por ahora el sistema está en modo sin envío (`CORREO_MODO=SIN_ENVIO`): arma y guarda cada correo con sus adjuntos, y se puede ver por la API.
+Un servicio real se suma como otra implementación de `CorreoSender`.
+Los días hábiles descartan fines de semana y los feriados nacionales de fecha fija; los trasladables no se consideran.
 
 ## 6. Aplicación móvil
 
