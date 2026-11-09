@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: centro_educativo
+          POSTGRES_USER: centro
+          POSTGRES_PASSWORD: centro
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U centro"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CENTRO_DB_URL: jdbc:postgresql://localhost:5432/centro_educativo
+      CENTRO_DB_USER: centro
+      CENTRO_DB_PASSWORD: centro
+    defaults:
+      run:
+        working-directory: Backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: Backend/pom.xml
+      - run: chmod +x mvnw
+      - run: ./mvnw -B verify
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

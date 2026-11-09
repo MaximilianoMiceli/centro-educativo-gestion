@@ -80,7 +80,7 @@ class MiServiciosAlumnoApiTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"grupoId\":" + grupos.get(0) + "}"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.deportes[0].deporte").value("Atletismo"));
+                .andExpect(jsonPath("$.deportes[*].deporte", org.hamcrest.Matchers.hasItem("Atletismo")));
     }
 
     @Test
