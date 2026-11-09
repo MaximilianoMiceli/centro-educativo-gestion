@@ -2,7 +2,7 @@
 
 Fechas clave: app terminada y lista para la actividad de testing el **11/11/2026**; informe y bitácora de IA el **17/11/2026**.
 Última actualización: 09/11/2026.
-Estado: fases 0, 1 y 2 completas.
+Estado: fases 0, 1, 2 y 3 completas (la app se verificó con pruebas y contra el backend real; falta probarla en el emulador).
 
 ## 1. Objetivo
 
