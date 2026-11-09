@@ -71,6 +71,7 @@ class FuncionalidadesUxApiTest {
     @Test
     void horariosSePuedenFiltrarPorDocenteYCurso() throws Exception {
         String admin = login("admin");
+        DictadoPruebas.asignarMateriaConHorario(mockMvc, admin, 2L);
 
         mockMvc.perform(get("/api/v1/horarios").param("docenteId", "2")
                         .header("Authorization", "Bearer " + admin))
@@ -85,6 +86,7 @@ class FuncionalidadesUxApiTest {
 
     @Test
     void profesorVeSuPropiaAgenda() throws Exception {
+        DictadoPruebas.asignarMateriaConHorario(mockMvc, login("admin"), 2L);
         String profesor = login("profesor2");
 
         mockMvc.perform(get("/api/v1/mi-agenda").header("Authorization", "Bearer " + profesor))

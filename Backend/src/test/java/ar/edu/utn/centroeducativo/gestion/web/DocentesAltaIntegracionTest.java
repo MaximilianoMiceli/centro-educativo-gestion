@@ -49,12 +49,13 @@ class DocentesAltaIntegracionTest {
     @Test
     void agendaDelDocenteMuestraCursosNivelMateriasYHorarios() throws Exception {
         String admin = login("admin", "password");
+        DictadoPruebas.asignarMateriaConHorario(mockMvc, admin, 2L);
 
         mockMvc.perform(get("/api/v1/docentes/2/agenda").header("Authorization", "Bearer " + admin))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.docente").value("López, María"))
                 .andExpect(jsonPath("$.cursos[0].nivel").value("Secundario"))
-                .andExpect(jsonPath("$.cursos[0].materias[0].materia").value("Matemática"))
+                .andExpect(jsonPath("$.cursos[*].materias[*].materia", org.hamcrest.Matchers.hasItem(DictadoPruebas.MATERIA)))
                 .andExpect(jsonPath("$.cursos[0].materias[0].horarios").isArray());
     }
 
