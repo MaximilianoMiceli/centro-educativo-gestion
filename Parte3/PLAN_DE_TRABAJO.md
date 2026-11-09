@@ -2,6 +2,7 @@
 
 Fechas clave: app terminada y lista para la actividad de testing el **11/11/2026**; informe y bitácora de IA el **17/11/2026**.
 Última actualización: 09/11/2026.
+Estado: fases 0 y 1 completas.
 
 ## 1. Objetivo
 
