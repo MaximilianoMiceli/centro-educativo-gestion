@@ -2,7 +2,7 @@
 
 Fechas clave: app terminada y lista para la actividad de testing el **11/11/2026**; informe y bitácora de IA el **17/11/2026**.
 Última actualización: 09/11/2026.
-Estado: fases 0 y 1 completas.
+Estado: fases 0, 1 y 2 completas.
 
 ## 1. Objetivo
 
@@ -55,9 +55,10 @@ Todo entra como migraciones Flyway nuevas (V18 en adelante). No se altera ningun
 | `factura` | Una por alumno y período (AAAA-MM): total, vencimiento, estado (pendiente, parcial, pagada) |
 | `factura_item` | Detalle de la factura: concepto, descripción e importe. Es la composición del total |
 | `pago` | Pago informado por el padre: importe, fecha, número de comprobante emitido y archivo de la transferencia |
-| `pago_item` | Qué ítems de la factura cubre cada pago |
+| `pago_archivo` | Imagen o PDF de la transferencia, aparte para no cargarlo al listar pagos |
 | `envio_correo` | Registro de cada correo (tipo, padre, período, estado). Evita enviar dos veces |
 
+Cada ítem de la factura guarda el pago que lo cubrió (`pago_id`), así un ítem se paga una sola vez y no hace falta una tabla intermedia.
 Los importes se copian a la factura al emitirla, así un cambio de precio no altera facturas ya emitidas.
 La factura se arma con las inscripciones vigentes del alumno (deportes, recorrido, comedor), que ya existen.
 
@@ -79,6 +80,7 @@ Padres (permiso existente `MI_INFORMACION_CONSULTAR`, solo sus hijos):
 - `GET /api/v1/mi-informacion/alumnos/{id}/deuda`: historial de deuda por ítem.
 - `GET /api/v1/mi-informacion/facturas/{id}/pdf`: factura en PDF.
 - `POST /api/v1/mi-informacion/facturas/{id}/pagos`: el padre elige ítems y adjunta la transferencia. Responde con el comprobante emitido.
+- `GET /api/v1/mi-informacion/pagos/{id}/comprobante` devuelve el comprobante emitido en PDF, y `.../pagos/{id}/archivo` la transferencia adjunta.
 - Las inscripciones a deportes, transporte y comedor ya existen en `/api/v1/mi-informacion/servicios`.
 
 ## 6. Aplicación móvil
@@ -120,6 +122,7 @@ Prioridad si el tiempo no alcanza:
 Cambios mínimos sobre código existente, todos aditivos:
 - `Frontend/src/utils/navegacion.ts` y `Frontend/src/App.tsx`: nuevos ítems de menú y rutas para finanzas.
 - `Backend/.../config/SecurityConfig.java`: reglas de autorización para las rutas nuevas.
+- `Backend/src/main/resources/application.yml`: límite de 5 MB para los comprobantes que se suben.
 - Migración que crea los permisos `FINANZAS_ADMINISTRAR` y `FINANZAS_CONSULTAR` y los asigna a los roles.
 
 ## 10. Riesgos
