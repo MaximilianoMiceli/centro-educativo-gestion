@@ -89,14 +89,14 @@ public class FacturacionService {
             factura.setEmision(LocalDate.now(reloj));
             factura.setVencimiento(mes.atDay(DIA_VENCIMIENTO));
             if (precios.cuotaBase() != null) {
-                agregar(factura, ConceptoPrecio.CUOTA_BASE, "Cuota base", precios.cuotaBase());
+                agregar(factura, ConceptoPrecio.CUOTA_BASE, null, "Cuota base", precios.cuotaBase());
             }
             deportesPorAlumno.getOrDefault(alumno.getId(), Map.of()).forEach((deporteId, nombre) -> {
                 BigDecimal monto = precioDeporte.get(deporteId);
                 if (monto == null) {
                     errores.put("deporte_" + deporteId, "Falta el valor del deporte " + nombre);
                 } else {
-                    agregar(factura, ConceptoPrecio.DEPORTE, "Deporte: " + nombre, monto);
+                    agregar(factura, ConceptoPrecio.DEPORTE, deporteId, "Deporte: " + nombre, monto);
                 }
             });
             Object[] transporte = transportePorAlumno.get(alumno.getId());
@@ -105,11 +105,11 @@ public class FacturacionService {
                 if (monto == null) {
                     errores.put("recorrido_" + transporte[0], "Falta el valor del recorrido " + transporte[1]);
                 } else {
-                    agregar(factura, ConceptoPrecio.TRANSPORTE, "Transporte: " + transporte[1], monto);
+                    agregar(factura, ConceptoPrecio.TRANSPORTE, ((Short) transporte[0]).longValue(), "Transporte: " + transporte[1], monto);
                 }
             }
             if (conComedor.contains(alumno.getId()) && precios.comedor() != null) {
-                agregar(factura, ConceptoPrecio.COMEDOR, "Servicio de comedor", precios.comedor());
+                agregar(factura, ConceptoPrecio.COMEDOR, null, "Servicio de comedor", precios.comedor());
             }
             factura.setTotal(factura.getItems().stream().map(FacturaItem::getMonto)
                     .reduce(BigDecimal.ZERO, BigDecimal::add));
@@ -140,11 +140,13 @@ public class FacturacionService {
         }
     }
 
-    private static void agregar(Factura factura, ConceptoPrecio concepto, String descripcion, BigDecimal monto) {
+    private static void agregar(Factura factura, ConceptoPrecio concepto, Long referenciaId, String descripcion,
+            BigDecimal monto) {
         FacturaItem item = new FacturaItem();
         item.setFactura(factura);
         item.setConcepto(concepto);
         item.setDescripcion(descripcion);
+        item.setReferenciaId(referenciaId);
         item.setMonto(monto);
         factura.getItems().add(item);
     }

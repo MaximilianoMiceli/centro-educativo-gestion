@@ -35,6 +35,9 @@ public class FacturaItem {
 
     private String descripcion;
 
+    /** Id del deporte o del recorrido al que corresponde el ítem; null para la cuota base y el comedor. */
+    private Long referenciaId;
+
     private BigDecimal monto;
 
     /** Pago que cubrió este ítem; null mientras esté pendiente. */
