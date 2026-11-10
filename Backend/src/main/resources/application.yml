@@ -11,6 +11,10 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 management:
   endpoints:
@@ -23,6 +27,11 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  correo:
+    # SIN_ENVIO arma y guarda los correos sin enviarlos. Más adelante se puede sumar un servicio real.
+    modo: ${CORREO_MODO:SIN_ENVIO}
+    programado: ${CORREO_PROGRAMADO:true}
+    cron: ${CORREO_CRON:0 0 9 * * *}
   jwt:
     secret: ${JWT_SECRET:esta-es-una-clave-secreta-para-desarrollo-solamente-cambiar-en-produccion}
     expiration: ${JWT_EXPIRATION:3600000}
