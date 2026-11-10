@@ -32,12 +32,15 @@ import {
   DirectionsBus,
   FamilyRestroom,
   Grade,
+  Email,
   Groups,
   Home,
   Layers,
   Logout as LogOutIcon,
   ManageAccounts,
   Menu as MenuIcon,
+  Payments,
+  Sell,
   Sports,
   Subject,
   VpnKey as VpnKeyIcon,
@@ -77,6 +80,9 @@ const ICONOS: Record<string, React.ReactNode> = {
   usuarios: <ManageAccounts fontSize="small" />,
   permisos: <AdminPanelSettings fontSize="small" />,
   familia: <FamilyRestroom fontSize="small" />,
+  finanzas: <Payments fontSize="small" />,
+  precios: <Sell fontSize="small" />,
+  correos: <Email fontSize="small" />,
 };
 
 export const Dashboard: React.FC<DashboardProps> = ({ token, onLogout, onTokenActualizado }) => {

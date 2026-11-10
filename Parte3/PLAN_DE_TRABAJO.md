@@ -2,7 +2,7 @@
 
 Fechas clave: app terminada y lista para la actividad de testing el **11/11/2026**; informe y bitácora de IA el **17/11/2026**.
 Última actualización: 09/11/2026.
-Estado: fases 0 a 4 completas. Los correos están en modo sin envío; la app se verificó con pruebas, contra el backend real y en el navegador, y falta probarla en el emulador de Android.
+Estado: fases 0 a 5 completas (incluye listados de finanzas, precios, facturación y correos en la web). Los correos están en modo sin envío; la app se verificó con pruebas, contra el backend real y en el navegador, y falta probarla en el emulador de Android.
 
 ## 1. Objetivo
 

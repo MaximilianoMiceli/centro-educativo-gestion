@@ -21,6 +21,9 @@ import { ServiciosPagina } from './pages/ServiciosPagina';
 import { CalificacionesPagina } from './pages/CalificacionesPagina';
 import { MisCalificacionesPagina } from './pages/MisCalificacionesPagina';
 import { MisServiciosPagina } from './pages/MisServiciosPagina';
+import { FinanzasPagina } from './pages/FinanzasPagina';
+import { PreciosPagina } from './pages/PreciosPagina';
+import { CorreosPagina } from './pages/CorreosPagina';
 import { debeCambiarPasswordDelToken, rolDelToken } from './utils/token';
 import { esSeccionDatos, puedeVer, rutaInicial } from './utils/navegacion';
 import { PALETA } from './institucion';
@@ -78,6 +81,9 @@ function AreaAutenticada({
         {puede('/servicios') && <Route path="servicios" element={<ServiciosPagina token={token} />} />}
         {puede('/docentes') && <Route path="docentes" element={<DocentesPanel token={token} />} />}
         {puede('/reportes') && <Route path="reportes" element={<ReportesPanel token={token} />} />}
+        {puede('/finanzas') && <Route path="finanzas" element={<FinanzasPagina token={token} />} />}
+        {puede('/precios') && <Route path="precios" element={<PreciosPagina token={token} />} />}
+        {puede('/correos') && <Route path="correos" element={<CorreosPagina token={token} />} />}
         {puede('/usuarios') && <Route path="usuarios" element={<UsuariosPanel token={token} />} />}
         {puede('/permisos') && <Route path="permisos" element={<PermisosRoles token={token} />} />}
         {puede('/mi-informacion') && <Route path="mi-informacion" element={<MiInformacion token={token} />} />}

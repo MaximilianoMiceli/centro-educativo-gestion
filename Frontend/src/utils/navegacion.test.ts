@@ -11,7 +11,7 @@ describe('itemsPermitidos', () => {
 
   it('la dirección ve inicio, alumnos y reportes, pero no la administración', () => {
     const rutas = itemsPermitidos('DIRECCION').map((i) => i.ruta);
-    expect(rutas).toEqual(['/inicio', '/alumnos', '/horarios', '/servicios', '/reportes']);
+    expect(rutas).toEqual(['/inicio', '/alumnos', '/horarios', '/servicios', '/reportes', '/finanzas']);
   });
 
   it('el profesor solo ve alumnos', () => {
@@ -48,7 +48,7 @@ describe('rutaInicial', () => {
 describe('agruparMenu', () => {
   it('agrupa por encabezado manteniendo el orden de aparición', () => {
     const grupos = agruparMenu(itemsPermitidos('ADMIN'));
-    expect(grupos.map((g) => g.titulo)).toEqual(['', 'Personas', 'Académico', 'Servicios', 'Administración']);
+    expect(grupos.map((g) => g.titulo)).toEqual(['', 'Personas', 'Académico', 'Servicios', 'Finanzas', 'Administración']);
     expect(grupos[0].items.map((i) => i.etiqueta)).toEqual(['Inicio', 'Reportes']);
   });
 });
