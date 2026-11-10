@@ -128,7 +128,7 @@ Es una comparación cualitativa. No se midieron tiempos de un desarrollo sin IA,
    Suposiciones sobre el entorno y sobre el contexto del equipo: algo que "debería" estar instalado o funcionar de cierta manera, o una decisión que no estaba escrita. Hubo pocos errores de lógica pura. Un caso aparte: una expectativa de prueba equivocada (se esperaban 3 pagos y eran 2) que hubo que corregir en la prueba y no en el código.
 
 5. **¿Fue necesario modificar código generado por IA?**
-   Sí. De 15 registros, 6 terminaron "Corregido" y 3 "Reemplazado"; los 5 "Correcto" también se revisaron y probaron antes de aceptarse.
+   Sí. De 15 registros, 7 terminaron "Corregido" y 3 "Reemplazado"; los 5 "Correcto" también se revisaron y probaron antes de aceptarse.
 
 6. **¿La IA comprendió correctamente la base de datos?**
    En gran parte, porque leyó las migraciones y las entidades existentes y siguió sus convenciones. Pero cometió errores de diseño que se vieron al implementar o al probar con datos (el período CHAR, la carga de dos listas a la vez, comparar texto en lugar de una referencia). La validación con Flyway, `ddl validate` y las pruebas contra PostgreSQL fue lo que los detectó.
