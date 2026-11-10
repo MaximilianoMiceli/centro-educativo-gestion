@@ -36,7 +36,7 @@ console.log('El celular y la PC tienen que estar en la misma red wifi.\n');
 
 if (process.argv.includes('--dry')) process.exit(0);
 
-const proceso = spawn('npx', ['expo', 'start', '--lan'], {
+const proceso = spawn('npx', ['expo', 'start', '--go', '--lan', '--offline'], {
   stdio: 'inherit',
   shell: true,
   env: { ...process.env, EXPO_PUBLIC_API_URL: api },
