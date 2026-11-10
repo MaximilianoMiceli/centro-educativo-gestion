@@ -36,6 +36,18 @@ EXPO_PUBLIC_API_URL=https://centro-educativo-gestion.onrender.com/api/v1 npm sta
 
 La versión desplegada en Render necesita tener las migraciones V18 y V19 para que las pantallas de cuotas funcionen.
 
+## Probarla en un celular con Expo Go
+
+Con el backend corriendo en la PC (puerto 8080) y el celular en la misma red wifi:
+
+```bash
+npm run celular
+```
+
+El script detecta la dirección de la PC en la red local, la usa como servidor de la API y muestra un código QR. Se escanea con la cámara (iPhone) o desde Expo Go (Android).
+La primera vez, el firewall de Windows tiene que permitir los puertos 8080 (backend) y 8081 (Expo) en la red privada. Si el celular no conecta, suele ser eso.
+El backend tiene que permitir el acceso desde el celular: no necesita CORS, pero sí escuchar en todas las interfaces (lo hace por defecto).
+
 ## Estructura
 
 ```

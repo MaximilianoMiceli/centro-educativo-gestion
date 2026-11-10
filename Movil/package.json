@@ -35,6 +35,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "celular": "node scripts/celular.mjs",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "test:integracion": "tsx --test scripts/integracion.test.ts"
