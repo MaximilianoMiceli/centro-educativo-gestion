@@ -55,6 +55,6 @@ if (process.argv.includes('--dry')) process.exit(0);
 const proceso = spawn('npx', ['expo', 'start', '--go', '--offline'], {
   stdio: 'inherit',
   shell: true,
-  env: { ...process.env, EXPO_PUBLIC_API_URL: api },
+  env: { ...process.env, EXPO_PUBLIC_API_URL: api, REACT_NATIVE_PACKAGER_HOSTNAME: ip },
 });
 proceso.on('exit', (codigo) => process.exit(codigo ?? 0));
