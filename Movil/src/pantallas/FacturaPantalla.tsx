@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as DocumentPicker from 'expo-document-picker';
 import React, { useState } from 'react';
-import { Alert, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { factura as pedirFactura, registrarPago } from '../api/backend';
 import { ApiError } from '../api/cliente';
@@ -57,7 +57,13 @@ export function FacturaPantalla({ route }: Props) {
     });
     if (!resultado.canceled && resultado.assets[0]) {
       const a = resultado.assets[0];
-      setArchivo({ uri: a.uri, name: a.name, type: a.mimeType ?? 'application/octet-stream' });
+      const type = a.mimeType ?? 'application/octet-stream';
+      if (Platform.OS === 'web') {
+        // En el navegador el formulario necesita el archivo en sí, no su dirección.
+        setArchivo({ blob: a.file ?? (await (await fetch(a.uri)).blob()), name: a.name, type });
+      } else {
+        setArchivo({ uri: a.uri, name: a.name, type });
+      }
     }
   }
 

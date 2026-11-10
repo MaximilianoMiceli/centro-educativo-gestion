@@ -71,17 +71,17 @@ Hay una sola fuente de verdad. La aplicación móvil no tiene base de datos prop
 
 ## 2. Registro de uso de la IA
 
-La bitácora completa está en `Parte3/bitacora-ia.md`, con 14 registros: problema, prompt, respuesta, si funcionó, modificaciones y resultado. Se usó una sola herramienta, Claude Code (Claude Sonnet 5.5), dentro del repositorio.
+La bitácora completa está en `Parte3/bitacora-ia.md`, con 15 registros: problema, prompt, respuesta, si funcionó, modificaciones y resultado. Se usó una sola herramienta, Claude Code (Claude Sonnet 5.5), dentro del repositorio.
 
-Resumen de los 14 registros:
+Resumen de los 15 registros:
 
 | Resultado | Cantidad |
 |---|---|
 | Correcto | 5 |
-| Corregido | 6 |
+| Corregido | 7 |
 | Reemplazado | 3 |
 
-Los registros 4, 5, 6, 10 y 11 documentan errores o fallos reales. Se dejaron en la bitácora a propósito.
+Los registros 4, 5, 6, 10, 11 y 15 documentan errores o fallos reales. Se dejaron en la bitácora a propósito.
 
 ## 3. IA vs. conocimiento del sistema
 
@@ -128,7 +128,7 @@ Es una comparación cualitativa. No se midieron tiempos de un desarrollo sin IA,
    Suposiciones sobre el entorno y sobre el contexto del equipo: algo que "debería" estar instalado o funcionar de cierta manera, o una decisión que no estaba escrita. Hubo pocos errores de lógica pura. Un caso aparte: una expectativa de prueba equivocada (se esperaban 3 pagos y eran 2) que hubo que corregir en la prueba y no en el código.
 
 5. **¿Fue necesario modificar código generado por IA?**
-   Sí. De 14 registros, 6 terminaron "Corregido" y 3 "Reemplazado"; los 5 "Correcto" también se revisaron y probaron antes de aceptarse.
+   Sí. De 15 registros, 7 terminaron "Corregido" y 3 "Reemplazado"; los 5 "Correcto" también se revisaron y probaron antes de aceptarse.
 
 6. **¿La IA comprendió correctamente la base de datos?**
    En gran parte, porque leyó las migraciones y las entidades existentes y siguió sus convenciones. Pero cometió errores de diseño que se vieron al implementar o al probar con datos (el período CHAR, la carga de dos listas a la vez, comparar texto en lugar de una referencia). La validación con Flyway, `ddl validate` y las pruebas contra PostgreSQL fue lo que los detectó.
